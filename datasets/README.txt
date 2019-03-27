@@ -1,9 +1,9 @@
 The image clustering datasets are accessed through the standard torchvision interface.
 
-For segmentation, we provide our own classes to access COCO-Stuff, COCO-Stuff-3, Potsdam, Potsdam-3. These are in code/datasets/segmentation.
-The scripts already do all the necessary interfacing with these classes.
-Just like image clustering, however, you will need to make sure you have the raw dataset sources stored and accessible.
 This file describes how to set up the segmentation datasets.
+For segmentation, we provide our own classes to access COCO-Stuff, COCO-Stuff-3, Potsdam, Potsdam-3.
+These classes are defined in code/datasets/segmentation.
+To run a segmentation script, just as with image clustering, you need the raw dataset stored locally.
 
 COCO-Stuff and COCO-Stuff-3
 1. Run setup_cocostuff164k.sh (in the background):
