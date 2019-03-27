@@ -1,0 +1,104 @@
+This file contains command line examples for training models with IIC code.
+
+It lists the commands used to train all the models used for the paper. For the trained models see ../models
+
+Each training run is named by its "model_ind". This is given in brackets.
+
+Note: "IID" (previous name) and "IIC" are equivalent in the code.
+
+All datasets use default PyTorch interface except COCO-Stuff and Potsdam, which have their own classes. See ../../datasets
+
+1. CLUSTERING
+
+1.1 Fully unsupervised image clustering - table 1, figures 1, 2, 5
+
+  STL10 (569)
+  export CUDA_VISIBLE_DEVICES=0 && nohup python -m code.scripts.cluster.cluster_sobel_twohead --model_ind 569 --arch ClusterNet5gTwoHead --mode IID --dataset STL10 --dataset_root /scratch/local/ssd/xuji/STL --gt_k 10 --output_k_A 70 --output_k_B 10 --lamb 1.0 --lr 0.0001  --num_epochs 2000 --batch_sz 700 --num_dataloaders 5 --num_sub_heads 5 --mix_train --crop_orig --rand_crop_sz 64 --input_sz 64 --head_A_first --double_eval --batchnorm_track > out/gnodee2_0_m569.out &
+
+  CIFAR10 (640)
+  export CUDA_VISIBLE_DEVICES=2 && nohup python -m code.scripts.cluster.cluster_sobel_twohead --model_ind 640  --arch ClusterNet5gTwoHead --mode IID --dataset CIFAR10 --dataset_root /scratch/local/ssd/xuji/CIFAR --gt_k 10 --output_k_A 70 --output_k_B 10 --lamb 1.0 --lr 0.0001  --num_epochs 2000 --batch_sz 660 --num_dataloaders 3 --num_sub_heads 5 --crop_orig --rand_crop_sz 20 --input_sz 32 --head_A_first --head_B_epochs 2 > out/gnoded1_gpu2_m640_r1.out &
+
+  CIFAR100-20 (579)
+  export CUDA_VISIBLE_DEVICES=1 && nohup python -m code.scripts.cluster.cluster_sobel_twohead --model_ind 579  --arch ClusterNet5gTwoHead --mode IID --dataset CIFAR20 --dataset_root /scratch/local/ssd/xuji/CIFAR --gt_k 20 --output_k_A 140 --output_k_B 20 --lamb 1.0 --lr 0.0001  --num_epochs 2000 --batch_sz 1000 --num_dataloaders 5 --num_sub_heads 5 --crop_orig --rand_crop_sz 20 --input_sz 32 --batchnorm_track > out/gnodec5_gpu1_m579_r1.out &
+
+  MNIST (685)
+  export CUDA_VISIBLE_DEVICES=3 && nohup python -m code.scripts.cluster.cluster_greyscale_twohead --model_ind 685 --arch ClusterNet6cTwoHead --mode IID --dataset MNIST --dataset_root /scratch/local/ssd/xuji/MNIST --gt_k 10 --output_k_A 50 --output_k_B 10  --lamb_A 1.0 --lamb_B 1.0 --lr 0.0001 --num_epochs 3200 --batch_sz 700 --num_dataloaders 5 --num_sub_heads 5 --crop_orig --crop_other --tf1_crop centre_half --tf2_crop random --tf1_crop_sz 20  --tf2_crop_szs 16 20 24 --input_sz 24 --rot_val 25 --no_flip --head_B_epochs 2 > out/sh10_gpu3_m685.out &
+
+1.2 Semi-supervised overclustering -  figure 6 and supp. mat.
+
+  STL10 (653)
+  export CUDA_VISIBLE_DEVICES=1,0 && nohup python -m code.scripts.cluster.cluster_sobel --dataset STL10 --dataset_root /scratch/local/ssd/xuji/STL --model_ind 653 --arch ClusterNet5g --num_epochs 3200 --output_k 140 --gt_k 10 --lr 0.0001 --lamb 1.0 --num_sub_heads 5 --batch_sz 1400 --num_dataloaders 5 --mix_train --crop_orig --rand_crop_sz 64 --input_sz 64 --mode IID+ --batchnorm_track > out/gnodec5_gpu1_0_m653.out &
+
+  CIFAR10 (652)
+  export CUDA_VISIBLE_DEVICES=3 && nohup python -m code.scripts.cluster.cluster_sobel --dataset CIFAR10 --dataset_root /scratch/local/ssd/xuji/CIFAR --model_ind 652  --arch ClusterNet5g --num_epochs 3200 --output_k 140 --gt_k 10 --lr 0.0001 --lamb 1.0 --num_sub_heads 5  --batch_sz 1320 --num_dataloaders 3  --crop_orig --rand_crop_sz 20 --input_sz 32 --mode IID+ --batchnorm_track > out/gnodea7_gpu3_m652_r1.out &
+
+  CIFAR100-20 (654)
+  export CUDA_VISIBLE_DEVICES=0 && nohup python -m code.scripts.cluster.cluster_sobel --dataset CIFAR20 --dataset_root /scratch/local/ssd/xuji/CIFAR --model_ind 654 --arch ClusterNet6c --num_epochs 3200 --output_k 280 --gt_k 20 --lr 0.0001 --lamb 1.0 --num_sub_heads 5 --batch_sz 2800 --num_dataloaders 5  --crop_orig --rand_crop_sz 20 --input_sz 24 --include_rgb --mode IID+ --batchnorm_track > out/sh11_gpu0_m654.out &
+
+  MNIST (665)
+  export CUDA_VISIBLE_DEVICES=0 && nohup python -m code.scripts.cluster.cluster_greyscale --dataset MNIST --dataset_root /scratch/local/ssd/xuji/MNIST --model_ind 665 --arch ClusterNet6c --num_epochs 3200 --output_k 25 --gt_k 10 --lr 0.0001 --lamb 1.0 --num_sub_heads 5 --batch_sz 350 --num_dataloaders 5 --crop_orig --crop_other --tf1_crop centre_half --tf2_crop random --tf1_crop_sz 20  --tf2_crop_szs 16 20 24 --input_sz 24 --rot_val 25 --no_flip --mode IID+ --batchnorm_track > out/sh9_gpu0_m665.out &
+
+1.3 Semi-supervised finetuning - table 3
+
+  Semi-sup overclustering features (650)
+  export CUDA_VISIBLE_DEVICES=2 && nohup python -m code.scripts.cluster.cluster_sobel --dataset STL10 --dataset_root /scratch/local/ssd/xuji/STL --model_ind 650 --arch ClusterNet5g --num_epochs 3200 --output_k 70 --gt_k 10 --lr 0.0001 --lamb 1.0 --num_sub_heads 5 --batch_sz 700 --num_dataloaders 5 --mix_train --crop_orig --rand_crop_sz 64 --input_sz 64 --mode IID+ --batchnorm_track > out/gnoded2_gpu2_m650_r2.out &
+
+  Finetuning (698)
+  export CUDA_VISIBLE_DEVICES=2 && nohup python -m code.scripts.semisup.IID_semisup_STL10  --model_ind 698 --old_model_ind 650 --head_lr 0.001 --trunk_lr 0.0001 --arch SupHead5 --penultimate_features --random_affine --affine_p 0.5 --cutout --cutout_p 0.5 --cutout_max_box 0.7 --num_epochs 8000 > out/gnodee4_gpu2_m698_r2.out &
+
+1.4 IIC ablation - table 2
+
+  no aux. overclustering, both heads same dimensionality (692)
+  export CUDA_VISIBLE_DEVICES=1 && nohup python -m code.scripts.cluster.cluster_sobel_twohead --model_ind 692 --arch ClusterNet5gTwoHead --mode IID --dataset STL10 --dataset_root /scratch/local/ssd/xuji/STL --gt_k 10 --output_k_A 10 --output_k_B 10 --lamb 1.0 --lr 0.0001  --num_epochs 2000 --batch_sz 700 --num_dataloaders 5 --num_sub_heads 5 --mix_train --crop_orig --rand_crop_sz 64 --input_sz 64 --head_A_first --double_eval --batchnorm_track > out/gnodec5_1_692.out &
+
+  single sub head (693)
+  export CUDA_VISIBLE_DEVICES=2 && nohup python -m code.scripts.cluster.cluster_sobel_twohead --model_ind 693 --arch ClusterNet5gTwoHead --mode IID --dataset STL10 --dataset_root /scratch/local/ssd/xuji/STL --gt_k 10 --output_k_A 70 --output_k_B 10 --lamb 1.0 --lr 0.0001  --num_epochs 2000 --batch_sz 700 --num_dataloaders 5 --num_sub_heads 1 --mix_train --crop_orig --rand_crop_sz 64 --input_sz 64 --head_A_first --double_eval --batchnorm_track > out/gnoded2_gpu2_m693.out &
+
+  no data repeats (694)
+  export CUDA_VISIBLE_DEVICES=1 && nohup python -m code.scripts.cluster.cluster_sobel_twohead --model_ind 694 --arch ClusterNet5gTwoHead --mode IID --dataset STL10 --dataset_root /scratch/local/ssd/xuji/STL --gt_k 10 --output_k_A 70 --output_k_B 10 --lamb 1.0 --lr 0.0001  --num_epochs 2000 --batch_sz 700 --num_dataloaders 1 --num_sub_heads 5 --mix_train --crop_orig --rand_crop_sz 64 --input_sz 64 --head_A_first --double_eval --batchnorm_track > out/gnodee4_gpu1_m694.out &
+
+  no unlabelled segment (695)
+  export CUDA_VISIBLE_DEVICES=3 && nohup python -m code.scripts.cluster.cluster_sobel_twohead --model_ind 695 --arch ClusterNet5gTwoHead --mode IID --dataset STL10 --dataset_root /scratch/local/ssd/xuji/STL --gt_k 10 --output_k_A 70 --output_k_B 10 --lamb 1.0 --lr 0.0001  --num_epochs 2000 --batch_sz 700 --num_dataloaders 5 --num_sub_heads 5 --mix_train --crop_orig --rand_crop_sz 64 --input_sz 64 --head_A_first --double_eval --batchnorm_track --stl_leave_out_unlabelled > out/gnoded2_gpu3_m695.out &
+
+
+2. SEGMENTATION
+
+2.1 Fully unsupervised segmentation - table 4, figure 7 and supp. mat.
+
+  COCO-Stuff-3 (555)
+  export CUDA_VISIBLE_DEVICES=0,1,2,3 && nohup python -m code.scripts.segmentation.segmentation_twohead --mode IID --dataset Coco164kCuratedFew --dataset_root /scratch/local/ssd/xuji/COCO/CocoStuff164k --model_ind 555 --arch SegmentationNet10aTwoHead --num_epochs 4800 --lr 0.0001 --lamb_A 1.0 --lamb_B 1.5 --num_sub_heads 1 --batch_sz 120 --num_dataloaders 1 --use_coarse_labels --output_k_A 15 --output_k_B 3 --gt_k 3 --pre_scale_all --pre_scale_factor 0.33 --input_sz 128 --half_T_side_sparse_min 0 --half_T_side_sparse_max 0 --half_T_side_dense 10 --include_rgb  --coco_164k_curated_version 6 --use_uncollapsed_loss --batchnorm_track > gnoded1_gpu0123_m555_r1.out &
+
+  COCO-Stuff-3 no lambda coefficient (714)
+  export CUDA_VISIBLE_DEVICES=0,1,2,3 && nohup python -m code.scripts.segmentation.segmentation_twohead --mode IID --dataset Coco164kCuratedFew --dataset_root /scratch/local/ssd/xuji/COCO/CocoStuff164k --model_ind 714 --arch SegmentationNet10aTwoHead --num_epochs 4800 --lr 0.0001 --lamb_A 1.0 --lamb_B 1.0 --num_sub_heads 1 --batch_sz 120 --num_dataloaders 1 --use_coarse_labels --output_k_A 15 --output_k_B 3 --gt_k 3 --pre_scale_all --pre_scale_factor 0.33 --input_sz 128 --half_T_side_sparse_min 0 --half_T_side_sparse_max 0 --half_T_side_dense 10 --include_rgb  --coco_164k_curated_version 6 --use_uncollapsed_loss --batchnorm_track > out/gnoded2_gpu0123_m714.out &
+
+  COCO-Stuff (512)
+  export CUDA_VISIBLE_DEVICES=0,1,2,3 && nohup python -m code.scripts.segmentation.segmentation_twohead --mode IID --dataset Coco164kCuratedFull --dataset_root /scratch/local/ssd/xuji/COCO/CocoStuff164k --model_ind 512 --arch SegmentationNet10aTwoHead --num_epochs 4800 --lr 0.0001 --lamb_A 1.0 --lamb_B 1.0 --num_sub_heads 1 --batch_sz 60 --num_dataloaders 1 --use_coarse_labels --output_k_A 45 --output_k_B 15 --gt_k 15 --pre_scale_all --pre_scale_factor 0.33 --input_sz 128 --half_T_side_sparse_min 0 --half_T_side_sparse_max 0 --half_T_side_dense 10 --include_rgb  --coco_164k_curated_version 7 --use_uncollapsed_loss --batchnorm_track > gnodec4_gpu0123_m512_r1.out &
+
+  Potsdam-3 (545)
+  export CUDA_VISIBLE_DEVICES=3,2 && nohup python -m code.scripts.segmentation.segmentation_twohead --mode IID --dataset Potsdam --dataset_root /scratch/local/ssd/xuji/POTSDAM --model_ind 545 --arch SegmentationNet10aTwoHead --num_epochs 4800 --lr 0.00001 --lamb_A 1.0 --lamb_B 1.5 --num_sub_heads 1 --batch_sz 75 --num_dataloaders 1 --use_coarse_labels --output_k_A 24 --output_k_B 3 --gt_k 3 --input_sz 200 --half_T_side_sparse_min 0 --half_T_side_sparse_max 0 --half_T_side_dense 10  --include_rgb --no_sobel --jitter_brightness 0.1 --jitter_contrast 0.1 --jitter_saturation 0.1 --jitter_hue 0.1 --use_uncollapsed_loss --batchnorm_track > sh14_gpu32_m545.out &
+
+  Potsdam-3 no lambda coefficient (711)
+  export CUDA_VISIBLE_DEVICES=2,3 && nohup python -m code.scripts.segmentation.segmentation_twohead --mode IID --dataset Potsdam --dataset_root /scratch/local/ssd/xuji/POTSDAM --model_ind 711 --arch SegmentationNet10aTwoHead --num_epochs 4800 --lr 0.00001 --lamb_A 1.0 --lamb_B 1.0 --num_sub_heads 1 --batch_sz 75 --num_dataloaders 1 --use_coarse_labels --output_k_A 24 --output_k_B 3 --gt_k 3 --input_sz 200 --half_T_side_sparse_min 0 --half_T_side_sparse_max 0 --half_T_side_dense 10  --include_rgb --no_sobel --jitter_brightness 0.1 --jitter_contrast 0.1 --jitter_saturation 0.1 --jitter_hue 0.1 --use_uncollapsed_loss --batchnorm_track > out/gnoded2_gpu2_3_m711_r1.out &
+
+  Potsdam (544)
+  export CUDA_VISIBLE_DEVICES=0,1,2,3 && nohup python -m code.scripts.segmentation.segmentation_twohead --mode IID --dataset Potsdam --dataset_root /scratch/local/ssd/xuji/POTSDAM --model_ind 544 --arch SegmentationNet10aTwoHead --num_epochs 4800 --lr 0.000001 --lamb_A 1.0 --lamb_B 1.0 --num_sub_heads 1 --batch_sz 60 --num_dataloaders 1 --output_k_A 36 --output_k_B 6 --gt_k 6 --input_sz 200 --half_T_side_sparse_min 0 --half_T_side_sparse_max 0 --half_T_side_dense 5  --include_rgb --no_sobel --jitter_brightness 0.1 --jitter_contrast 0.1 --jitter_saturation 0.1 --jitter_hue 0.1 --use_uncollapsed_loss --batchnorm_track > gnoded2_gpu0123_m544_r1.out &
+
+2.2 Semi-supervised overclustering for segmentation - figure 7 and supp. mat.
+
+  COCO-Stuff-3 (496)
+  export CUDA_VISIBLE_DEVICES=0,1,2,3 && nohup python -m code.scripts.segmentation.segmentation --mode IID+ --dataset Coco164kCuratedFew --dataset_root /scratch/local/ssd/xuji/COCO/CocoStuff164k --model_ind 496 --arch SegmentationNet10a --num_epochs 4800 --lr 0.0001 --lamb 1.0 --num_sub_heads 1 --batch_sz 180 --num_dataloaders 1 --use_coarse_labels --output_k 15 --gt_k 3 --pre_scale_all --pre_scale_factor 0.33 --input_sz 128 --half_T_side_sparse_min 0 --half_T_side_sparse_max 0 --half_T_side_dense 10 --include_rgb  --coco_164k_curated_version 6 --use_uncollapsed_loss --batchnorm_track > gnodec4_gpu0123_m496.out &
+
+  COCO-Stuff (521)
+  export CUDA_VISIBLE_DEVICES=0,1,2,3 && nohup python -m code.scripts.segmentation.segmentation --mode IID+ --dataset Coco164kCuratedFull --dataset_root /scratch/local/ssd/xuji/COCO/CocoStuff164k --model_ind 521 --arch SegmentationNet10a --num_epochs 4800 --lr 0.0001 --lamb 1.0 --num_sub_heads 1 --batch_sz 90 --num_dataloaders 1 --use_coarse_labels --output_k 45 --gt_k 15 --pre_scale_all --pre_scale_factor 0.33 --input_sz 128 --half_T_side_sparse_min 0 --half_T_side_sparse_max 0 --half_T_side_dense 10 --include_rgb  --coco_164k_curated_version 7 --use_uncollapsed_loss --batchnorm_track > gnoded2_gpu0123_m521.out &
+
+  Potsdam-3 (482)
+  export CUDA_VISIBLE_DEVICES=2,3 && nohup python -m code.scripts.segmentation.segmentation --mode IID+ --dataset Potsdam --dataset_root /scratch/local/ssd/xuji/POTSDAM --model_ind 482 --arch SegmentationNet10a --num_epochs 4800 --lr 0.00001 --lamb 1.0 --num_sub_heads 1 --batch_sz 75 --num_dataloaders 1 --use_coarse_labels --output_k 9 --gt_k 3 --input_sz 200 --half_T_side_sparse_min 0 --half_T_side_sparse_max 0 --half_T_side_dense 10  --include_rgb --no_sobel --jitter_brightness 0.1 --jitter_contrast 0.1 --jitter_saturation 0.1 --jitter_hue 0.1 --use_uncollapsed_loss --batchnorm_track > sh13_gpu23_m482_r1.out &
+
+  Potsdam (487)
+  export CUDA_VISIBLE_DEVICES=0,1 && nohup python -m code.scripts.segmentation.segmentation --mode IID+ --dataset Potsdam --dataset_root /scratch/local/ssd/xuji/POTSDAM --model_ind 487 --arch SegmentationNet10a --num_epochs 4800 --lr 0.00001 --lamb 1.0 --num_sub_heads 1 --batch_sz 60 --num_dataloaders 1 --output_k 24 --gt_k 6 --input_sz 200 --half_T_side_sparse_min 0 --half_T_side_sparse_max 0 --half_T_side_dense 10  --include_rgb --no_sobel --jitter_brightness 0.1 --jitter_contrast 0.1 --jitter_saturation 0.1 --jitter_hue 0.1 --use_uncollapsed_loss --batchnorm_track > gnoded2_gpu01_m487_r1.out &
+
+
+3. POINTS PROGRESSION - figure 2
+
+  These images are rendered on the fly during training. Turn it on with "--save_progression" option. E.g.:
+  export CUDA_VISIBLE_DEVICES=3 && nohup python -m code.scripts.cluster.cluster_greyscale_twohead --model_ind 726 --arch ClusterNet6cTwoHead --mode IID --dataset MNIST --dataset_root /scratch/local/ssd/xuji/MNIST --gt_k 10 --output_k_A 50 --output_k_B 10  --lamb_A 1.0 --lamb_B 1.0 --lr 0.0001 --batch_sz 700 --num_dataloaders 5 --num_sub_heads 5 --crop_orig --crop_other --tf1_crop centre_half --tf2_crop random --tf1_crop_sz 20  --tf2_crop_szs 16 20 24 --input_sz 24 --rot_val 25 --no_flip --head_B_epochs 2  --save_progression --num_epochs 7 --save_freq 1000 > out/gnodee4_gpu3_m726.out &
