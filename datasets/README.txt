@@ -7,7 +7,7 @@ This file describes how to set up the segmentation datasets.
 
 COCO-Stuff and COCO-Stuff-3
 1. Run setup_cocostuff164k.sh (in the background):
-nohup ./scripts/setup_cocostuff164k.sh my_CocoStuff164k_directory > download_log.out &
+nohup ./setup_cocostuff164k.sh my_CocoStuff164k_directory > download_log.out &
 2. Download the curated image ids from https://www.robots.ox.ac.uk/~xuji/datasets/COCOStuff164kCurated.tar.gz
 3. Untar the file, move "curated" directory to my_CocoStuff164k_directory/curated. There should now be "annotations", "curated" and "images" within my_CocoStuff164k_directory.
 4. To run scripts, make sure --dataset_root is set to (absolute path of) my_CocoStuff164k_directory, and --fine_to_coarse_dict is set to (absolute path of) code/datasets/segmentation/util/out/fine_to_coarse_fict.pickle
