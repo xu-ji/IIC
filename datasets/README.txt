@@ -14,7 +14,7 @@ nohup ./setup_cocostuff164k.sh my_CocoStuff164k_directory > download_log.out &
 
 Potsdam and Potsdam-3
 Either:
-1. Download the files directly from https://www.robots.ox.ac.uk/~xuji/datasets/Potsdam.tar.gz
+1. Download the files directly: wget https://www.robots.ox.ac.uk/~xuji/datasets/Potsdam.tar.gz
 2. Untar the directory. Set its path as --dataset_root for running scripts.
 
 Or:
