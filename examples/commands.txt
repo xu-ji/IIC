@@ -1,12 +1,12 @@
 This file contains command line examples for training models with IIC code.
 
-It lists the commands used to train all the models used for the paper. For the trained models see ../models
+It lists the commands used to train all the models used for the paper. For the trained models see trained_models.txt
 
 Each training run is named by its "model_ind". This is given in brackets.
 
 Note: "IID" (previous name) and "IIC" are equivalent in the code.
 
-All datasets use default PyTorch interface except COCO-Stuff and Potsdam, which have their own classes. See ../../datasets
+All datasets use default PyTorch interface except COCO-Stuff and Potsdam, which have their own classes. See ../datasets
 
 1. CLUSTERING
 
