@@ -98,7 +98,7 @@ All datasets use default PyTorch interface except COCO-Stuff and Potsdam, which 
   export CUDA_VISIBLE_DEVICES=0,1 && nohup python -m code.scripts.segmentation.segmentation --mode IID+ --dataset Potsdam --dataset_root /scratch/local/ssd/xuji/POTSDAM --model_ind 487 --arch SegmentationNet10a --num_epochs 4800 --lr 0.00001 --lamb 1.0 --num_sub_heads 1 --batch_sz 60 --num_dataloaders 1 --output_k 24 --gt_k 6 --input_sz 200 --half_T_side_sparse_min 0 --half_T_side_sparse_max 0 --half_T_side_dense 10  --include_rgb --no_sobel --jitter_brightness 0.1 --jitter_contrast 0.1 --jitter_saturation 0.1 --jitter_hue 0.1 --use_uncollapsed_loss --batchnorm_track > gnoded2_gpu01_m487_r1.out &
 
 
-3. POINTS PROGRESSION - figure 2
+3. POINTS PROGRESSION FOR MNIST - figure 2
 
-  These images are rendered on the fly during training. Turn it on with "--save_progression" option. E.g.:
+  This was implemented for MNIST. The progression images are rendered on the fly during training. Turn it on with "--save_progression" option when training on MNIST. E.g.:
   export CUDA_VISIBLE_DEVICES=3 && nohup python -m code.scripts.cluster.cluster_greyscale_twohead --model_ind 726 --arch ClusterNet6cTwoHead --mode IID --dataset MNIST --dataset_root /scratch/local/ssd/xuji/MNIST --gt_k 10 --output_k_A 50 --output_k_B 10  --lamb_A 1.0 --lamb_B 1.0 --lr 0.0001 --batch_sz 700 --num_dataloaders 5 --num_sub_heads 5 --crop_orig --crop_other --tf1_crop centre_half --tf2_crop random --tf1_crop_sz 20  --tf2_crop_szs 16 20 24 --input_sz 24 --rot_val 25 --no_flip --head_B_epochs 2  --save_progression --num_epochs 7 --save_freq 1000 > out/gnodee4_gpu3_m726.out &
