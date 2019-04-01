@@ -8,12 +8,17 @@ Note: "IID" (previous name) and "IIC" are equivalent in the code.
 
 All datasets use default PyTorch interface except COCO-Stuff and Potsdam, which have their own classes. See ../datasets
 
+See the updated supplementary material (paper/suppmat.pdf sections 10, 11) for more discussion of evaluating sub-heads and avoiding degenerate clustering solutions.
+
 1. CLUSTERING
 
 1.1 Fully unsupervised image clustering - table 1, figures 1, 3, 5
 
   STL10 (569)
   export CUDA_VISIBLE_DEVICES=0 && nohup python -m code.scripts.cluster.cluster_sobel_twohead --model_ind 569 --arch ClusterNet5gTwoHead --mode IID --dataset STL10 --dataset_root /scratch/local/ssd/xuji/STL --gt_k 10 --output_k_A 70 --output_k_B 10 --lamb 1.0 --lr 0.0001  --num_epochs 2000 --batch_sz 700 --num_dataloaders 5 --num_sub_heads 5 --mix_train --crop_orig --rand_crop_sz 64 --input_sz 64 --head_A_first --double_eval --batchnorm_track > out/gnodee2_0_m569.out &
+
+  or (570):
+  export CUDA_VISIBLE_DEVICES=0 && nohup python -m code.scripts.cluster.cluster_sobel_twohead --model_ind 570  --arch ClusterNet5gTwoHead --mode IID --dataset STL10 --dataset_root /scratch/local/ssd/xuji/STL --gt_k 10 --output_k_A 70 --output_k_B 10 --lamb 1.0 --lr 0.0001  --num_epochs 2000 --batch_sz 700 --num_dataloaders 5 --num_sub_heads 5 --mix_train --crop_orig --rand_crop_sz 64 --input_sz 64 --head_B_epochs 2 --double_eval --batchnorm_track > out/gnodee3_0_m570.out &
 
   CIFAR10 (640)
   export CUDA_VISIBLE_DEVICES=2 && nohup python -m code.scripts.cluster.cluster_sobel_twohead --model_ind 640  --arch ClusterNet5gTwoHead --mode IID --dataset CIFAR10 --dataset_root /scratch/local/ssd/xuji/CIFAR --gt_k 10 --output_k_A 70 --output_k_B 10 --lamb 1.0 --lr 0.0001  --num_epochs 2000 --batch_sz 660 --num_dataloaders 3 --num_sub_heads 5 --crop_orig --rand_crop_sz 20 --input_sz 32 --head_A_first --head_B_epochs 2 > out/gnoded1_gpu2_m640_r1.out &

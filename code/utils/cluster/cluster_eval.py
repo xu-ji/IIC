@@ -1,11 +1,13 @@
 from __future__ import print_function
 
+import itertools
 import sys
 from datetime import datetime
 
 import numpy as np
 import torch
 
+from .IID_losses import IID_loss
 from .eval_metrics import _hungarian_match, _original_match, _acc
 from .transforms import sobel_process
 
@@ -79,6 +81,7 @@ def cluster_subheads_eval(config, net,
                           sobel,
                           using_IR=False,
                           get_data_fn=_clustering_get_data,
+                          use_sub_head=None,
                           verbose=0):
   """
   Used by both clustering and segmentation.
@@ -89,6 +92,10 @@ def cluster_subheads_eval(config, net,
   best head determined by training data (but metric computed on test data).
   
   ^ detail only matters for IID+/semisup where there's a train/test split.
+  
+  Option to choose best sub_head either based on loss (set use_head in main 
+  script), or eval. Former does not use labels for the selection at all and this
+  has negligible impact on accuracy metric for our models.
   """
 
   all_matches, train_accs = _get_assignment_data_matches(net,
@@ -99,7 +106,11 @@ def cluster_subheads_eval(config, net,
                                                          get_data_fn=get_data_fn,
                                                          verbose=verbose)
 
-  best_sub_head = np.argmax(train_accs)
+  best_sub_head_eval = np.argmax(train_accs)
+  if (config.num_sub_heads > 1) and (use_sub_head is not None):
+    best_sub_head = use_sub_head
+  else:
+    best_sub_head = best_sub_head_eval
 
   if config.mode == "IID":
     assert (
@@ -124,15 +135,10 @@ def cluster_subheads_eval(config, net,
   else:
     assert (False)
 
-  if test_accs.max() != test_accs[best_sub_head]:
-    assert (config.mode != "IID")
-    print("Training data best head is not same as test data best head - only "
-          "possible for IID+ (using training)")
-
   return {"test_accs": list(test_accs),
           "avg": np.mean(test_accs),
           "std": np.std(test_accs),
-          "best": test_accs[best_sub_head],  # head selected from training data
+          "best": test_accs[best_sub_head],
           "worst": test_accs.min(),
           "best_train_sub_head": best_sub_head,  # from training data
           "best_train_sub_head_match": all_matches[best_sub_head],
@@ -227,8 +233,93 @@ def _get_assignment_data_matches(net, mapping_assignment_dataloader, config,
     return all_matches, all_accs
 
 
+def get_subhead_using_loss(config, dataloaders_head_B, net, sobel, lamb,
+                           compare=False):
+  net.eval()
+
+  head = "B"  # main output head
+  dataloaders = dataloaders_head_B
+  iterators = (d for d in dataloaders)
+
+  b_i = 0
+  loss_per_sub_head = np.zeros(config.num_sub_heads)
+  for tup in itertools.izip(*iterators):
+    net.module.zero_grad()
+
+    dim = config.in_channels
+    if sobel:
+      dim -= 1
+
+    all_imgs = torch.zeros(config.batch_sz, dim,
+                           config.input_sz,
+                           config.input_sz).cuda()
+    all_imgs_tf = torch.zeros(config.batch_sz, dim,
+                              config.input_sz,
+                              config.input_sz).cuda()
+
+    imgs_curr = tup[0][0]  # always the first
+    curr_batch_sz = imgs_curr.size(0)
+    for d_i in xrange(config.num_dataloaders):
+      imgs_tf_curr = tup[1 + d_i][0]  # from 2nd to last
+      assert (curr_batch_sz == imgs_tf_curr.size(0))
+
+      actual_batch_start = d_i * curr_batch_sz
+      actual_batch_end = actual_batch_start + curr_batch_sz
+      all_imgs[actual_batch_start:actual_batch_end, :, :, :] = \
+        imgs_curr.cuda()
+      all_imgs_tf[actual_batch_start:actual_batch_end, :, :, :] = \
+        imgs_tf_curr.cuda()
+
+    curr_total_batch_sz = curr_batch_sz * config.num_dataloaders
+    all_imgs = all_imgs[:curr_total_batch_sz, :, :, :]
+    all_imgs_tf = all_imgs_tf[:curr_total_batch_sz, :, :, :]
+
+    if sobel:
+      all_imgs = sobel_process(all_imgs, config.include_rgb)
+      all_imgs_tf = sobel_process(all_imgs_tf, config.include_rgb)
+
+    with torch.no_grad():
+      x_outs = net(all_imgs, head=head)
+      x_tf_outs = net(all_imgs_tf, head=head)
+
+    for i in xrange(config.num_sub_heads):
+      loss, loss_no_lamb = IID_loss(x_outs[i], x_tf_outs[i],
+                                    lamb=lamb)
+      loss_per_sub_head[i] += loss.item()
+
+    if b_i % 100 == 0:
+      print("at batch %d" % b_i)
+      sys.stdout.flush()
+    b_i += 1
+
+  best_sub_head_loss = np.argmin(loss_per_sub_head)
+
+  if compare:
+    print(loss_per_sub_head)
+    print("best sub_head by loss: %d" % best_sub_head_loss)
+
+    best_epoch = np.argmax(np.array(config.epoch_acc))
+    if "best_train_sub_head" in config.epoch_stats[best_epoch]:
+      best_sub_head_eval = config.epoch_stats[best_epoch]["best_train_sub_head"]
+      test_accs = config.epoch_stats[best_epoch]["test_accs"]
+    else:  # older config version
+      best_sub_head_eval = config.epoch_stats[best_epoch]["best_head"]
+      test_accs = config.epoch_stats[best_epoch]["all"]
+
+    print("best sub_head by eval: %d" % best_sub_head_eval)
+
+    print("... loss select acc: %f, eval select acc: %f" %
+          (test_accs[best_sub_head_loss],
+           test_accs[best_sub_head_eval]))
+
+  net.train()
+
+  return best_sub_head_loss
+
+
 def cluster_eval(config, net, mapping_assignment_dataloader,
-                 mapping_test_dataloader, sobel, print_stats=False):
+                 mapping_test_dataloader, sobel,
+                 use_sub_head=None, print_stats=False):
   if config.double_eval:
     # Pytorch's behaviour varies depending on whether .eval() is called or not
     # The effect is batchnorm updates if .eval() is not called
@@ -238,7 +329,8 @@ def cluster_eval(config, net, mapping_assignment_dataloader,
     stats_dict2 = cluster_subheads_eval(config, net,
                                         mapping_assignment_dataloader=mapping_assignment_dataloader,
                                         mapping_test_dataloader=mapping_test_dataloader,
-                                        sobel=sobel)
+                                        sobel=sobel,
+                                        use_sub_head=use_sub_head)
 
     if print_stats:
       print("double eval stats:")
@@ -252,7 +344,8 @@ def cluster_eval(config, net, mapping_assignment_dataloader,
   stats_dict = cluster_subheads_eval(config, net,
                                      mapping_assignment_dataloader=mapping_assignment_dataloader,
                                      mapping_test_dataloader=mapping_test_dataloader,
-                                     sobel=sobel)
+                                     sobel=sobel,
+                                     use_sub_head=use_sub_head)
   net.train()
 
   if print_stats:

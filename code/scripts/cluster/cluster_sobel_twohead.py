@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import code.archs as archs
 from code.utils.cluster.general import config_to_str, get_opt, update_lr, nice
 from code.utils.cluster.transforms import sobel_process
-from code.utils.cluster.cluster_eval import cluster_eval
+from code.utils.cluster.cluster_eval import cluster_eval, get_subhead_using_loss
 from code.utils.cluster.data import cluster_twohead_create_dataloaders
 from code.utils.cluster.IID_losses import IID_loss
 
@@ -73,6 +73,9 @@ parser.add_argument("--head_A_epochs", type=int, default=1)
 parser.add_argument("--head_B_epochs", type=int, default=1)
 
 parser.add_argument("--batchnorm_track", default=False, action="store_true")
+
+parser.add_argument("--select_sub_head_on_loss", default=False,
+                    action="store_true")
 
 # transforms
 parser.add_argument("--mix_train", dest="mix_train", default=False,
@@ -234,10 +237,15 @@ else:
   config.epoch_loss_head_B = []
   config.epoch_loss_no_lamb_head_B = []
 
+  sub_head = None
+  if config.select_sub_head_on_loss:
+    sub_head = get_subhead_using_loss(config, dataloaders_head_B, net,
+                                      sobel=True, lamb=config.lamb)
   _ = cluster_eval(config, net,
                    mapping_assignment_dataloader=mapping_assignment_dataloader,
                    mapping_test_dataloader=mapping_test_dataloader,
-                   sobel=True)
+                   sobel=True,
+                   use_sub_head=sub_head)
 
   print("Pre: time %s: \n %s" % (datetime.now(), nice(config.epoch_stats[-1])))
   if config.double_eval:
@@ -360,10 +368,17 @@ for e_i in xrange(next_epoch, config.num_epochs):
 
   # Eval -----------------------------------------------------------------------
 
+  # Can also pick the subhead using the evaluation process (to do this,
+  #  set use_sub_head=None)
+  sub_head = None
+  if config.select_sub_head_on_loss:
+    sub_head = get_subhead_using_loss(config, dataloaders_head_B, net,
+                                      sobel=True, lamb=config.lamb)
   is_best = cluster_eval(config, net,
                          mapping_assignment_dataloader=mapping_assignment_dataloader,
                          mapping_test_dataloader=mapping_test_dataloader,
-                         sobel=True)
+                         sobel=True,
+                         use_sub_head=sub_head)
 
   print("Pre: time %s: \n %s" % (datetime.now(), nice(config.epoch_stats[-1])))
   if config.double_eval:

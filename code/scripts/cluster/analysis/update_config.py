@@ -27,6 +27,10 @@ if not hasattr(config, "num_sub_heads"):
   print("adding num sub heads")
   config.num_sub_heads = config.num_heads
 
+if not hasattr(config, "select_sub_head_on_loss"):
+  print("adding select_sub_head_on_loss")
+  config.select_sub_head_on_loss = False
+
 if not hasattr(config, "use_doersch_datasets"):  # only needed for seg configs
   print("adding use doersch datasets")
   config.use_doersch_datasets = False

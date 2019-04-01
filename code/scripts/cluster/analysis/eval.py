@@ -24,9 +24,6 @@ with open(reloaded_config_path, "rb") as config_f:
   config = pickle.load(config_f)
 assert (config.model_ind == given_config.model_ind)
 
-if not hasattr(config, "num_sub_heads"):
-  config.num_sub_heads = config.num_heads
-
 if not hasattr(config, "twohead"):
   config.twohead = ("TwoHead" in config.arch)
 

@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 import code.archs as archs
 from code.utils.cluster.general import config_to_str, get_opt, update_lr, nice
 from code.utils.cluster.data import cluster_twohead_create_dataloaders
-from code.utils.cluster.cluster_eval import cluster_eval
+from code.utils.cluster.cluster_eval import cluster_eval, get_subhead_using_loss
 from code.utils.cluster.IID_losses import IID_loss
 from code.utils.cluster.render import save_progress
 
@@ -76,6 +76,9 @@ parser.add_argument("--head_B_epochs", type=int, default=1)
 parser.add_argument("--batchnorm_track", default=False, action="store_true")
 
 parser.add_argument("--save_progression", default=False, action="store_true")
+
+parser.add_argument("--select_sub_head_on_loss", default=False,
+                    action="store_true")
 
 # transforms
 parser.add_argument("--demean", dest="demean", default=False,
@@ -245,10 +248,15 @@ def train(render_count=-1):
     config.epoch_loss_head_B = []
     config.epoch_loss_no_lamb_head_B = []
 
+    sub_head = None
+    if config.select_sub_head_on_loss:
+      sub_head = get_subhead_using_loss(config, dataloaders_head_B, net,
+                                        sobel=False, lamb=config.lamb_B)
     _ = cluster_eval(config, net,
                      mapping_assignment_dataloader=mapping_assignment_dataloader,
                      mapping_test_dataloader=mapping_test_dataloader,
-                     sobel=False)
+                     sobel=False,
+                     use_sub_head=sub_head)
 
     print(
       "Pre: time %s: \n %s" % (datetime.now(), nice(config.epoch_stats[-1])))
@@ -393,10 +401,15 @@ def train(render_count=-1):
     # Eval
     # -----------------------------------------------------------------------
 
+    sub_head = None
+    if config.select_sub_head_on_loss:
+      sub_head = get_subhead_using_loss(config, dataloaders_head_B, net,
+                                        sobel=False, lamb=config.lamb_B)
     is_best = cluster_eval(config, net,
                            mapping_assignment_dataloader=mapping_assignment_dataloader,
                            mapping_test_dataloader=mapping_test_dataloader,
-                           sobel=False)
+                           sobel=False,
+                           use_sub_head=sub_head)
 
     print(
       "Pre: time %s: \n %s" % (datetime.now(), nice(config.epoch_stats[-1])))
