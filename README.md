@@ -16,3 +16,10 @@ How to download all our trained models <a href="https://github.com/xu-ji/IIC/blo
 
 How to set up the segmentation datasets <a href="https://github.com/xu-ji/IIC/blob/master/datasets/README.txt">here</a>.
 
+# Package dependencies
+Listed <a href="https://github.com/xu-ji/IIC/blob/master/package_versions.txt">here</a>. You may want to use e.g. virtualenv to isolate the environment. It's an easy way to install package versions specific to the repository that won't affect the rest of the system.
+
+# Forks
+There are various forks of the main repository. In general I have not verified the code or performance, but check them out as someone may be working with versions of interest to you. For example:
+- https://github.com/nathanin/IIC (Tensorflow)
+- https://github.com/sebastiani/IIC (Python 3, Pytorch 1.0)
