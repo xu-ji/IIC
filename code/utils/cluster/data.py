@@ -266,7 +266,8 @@ def _create_dataloaders(config, dataset_class, tf1, tf2,
         root=config.dataset_root,
         transform=tf1,
         split=train_partition,
-        target_transform=target_transform)
+        target_transform=target_transform,
+        download=True)
     else:
       train_imgs_curr = dataset_class(
         root=config.dataset_root,

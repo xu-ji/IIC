@@ -1,4 +1,4 @@
-from net10a import SegmentationNet10aHead, SegmentationNet10aTrunk, \
+from .net10a import SegmentationNet10aHead, SegmentationNet10aTrunk, \
   SegmentationNet10a
 from ..cluster.vgg import VGGNet
 

@@ -1,3 +1,5 @@
+import sys
+sys.path.append('home/se26956/projects/IIC')
 import torch.nn as nn
 
 from code.archs.cluster.net5g import ClusterNet5gTrunk

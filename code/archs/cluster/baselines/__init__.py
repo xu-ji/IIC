@@ -1,1 +1,1 @@
-from triplets import *
+from .triplets import *
