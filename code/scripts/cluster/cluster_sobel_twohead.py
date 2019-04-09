@@ -120,7 +120,7 @@ else:
 
 config.out_dir = os.path.join(config.out_root, str(config.model_ind))
 assert (config.batch_sz % config.num_dataloaders == 0)
-config.dataloader_batch_sz = config.batch_sz / config.num_dataloaders
+config.dataloader_batch_sz = config.batch_sz // config.num_dataloaders
 
 assert (config.mode == "IID")
 assert ("TwoHead" in config.arch)
@@ -259,7 +259,7 @@ fig, axarr = plt.subplots(6 + 2 * int(config.double_eval), sharex=False,
 
 # Train ------------------------------------------------------------------------
 
-for e_i in xrange(next_epoch, config.num_epochs):
+for e_i in range(next_epoch, config.num_epochs):
   print("Starting e_i: %d" % (e_i))
 
   if e_i in config.lr_schedule:
@@ -286,7 +286,7 @@ for e_i in xrange(next_epoch, config.num_epochs):
       iterators = (d for d in dataloaders)
 
       b_i = 0
-      for tup in itertools.izip(*iterators):
+      for tup in zip(*iterators):
         net.module.zero_grad()
 
         # one less because this is before sobel
@@ -299,7 +299,7 @@ for e_i in xrange(next_epoch, config.num_epochs):
 
         imgs_curr = tup[0][0]  # always the first
         curr_batch_sz = imgs_curr.size(0)
-        for d_i in xrange(config.num_dataloaders):
+        for d_i in range(config.num_dataloaders):
           imgs_tf_curr = tup[1 + d_i][0]  # from 2nd to last
           assert (curr_batch_sz == imgs_tf_curr.size(0))
 
@@ -325,7 +325,7 @@ for e_i in xrange(next_epoch, config.num_epochs):
 
         avg_loss_batch = None  # avg over the sub_heads
         avg_loss_no_lamb_batch = None
-        for i in xrange(config.num_sub_heads):
+        for i in range(config.num_sub_heads):
           loss, loss_no_lamb = IID_loss(x_outs[i], x_tf_outs[i],
                                         lamb=config.lamb)
           if avg_loss_batch is None:

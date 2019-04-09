@@ -47,11 +47,11 @@ class ClusterNet6cHead(nn.Module):
     self.heads = nn.ModuleList([nn.Sequential(
       nn.Linear(num_features * features_sp_size * features_sp_size,
                 config.output_k),
-      nn.Softmax(dim=1)) for _ in xrange(self.num_sub_heads)])
+      nn.Softmax(dim=1)) for _ in range(self.num_sub_heads)])
 
   def forward(self, x, kmeans_use_features=False):
     results = []
-    for i in xrange(self.num_sub_heads):
+    for i in range(self.num_sub_heads):
       if kmeans_use_features:
         results.append(x)  # duplicates
       else:

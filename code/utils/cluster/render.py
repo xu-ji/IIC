@@ -77,7 +77,7 @@ def save_progress(config, net, mapping_assignment_dataloader,
     # image = np.zeros((2 * (scale + border), 2 * (scale + border), 3),
     #                dtype=np.int32)
 
-    for i in xrange(num_samples):
+    for i in range(num_samples):
       # in range [-1, 1] -> [0, 2 * scale] -> [border, 2 * scale + border]
       coord = get_coord(reordered_soft_preds[i, :], num_classes=config.gt_k)
       coord = (coord * scale + scale).astype(np.int32)
@@ -94,15 +94,15 @@ def save_progress(config, net, mapping_assignment_dataloader,
     # -------------------------
     # dataloaders not shuffled, or jittered here
     averaged_imgs = [np.zeros((config.input_sz, config.input_sz, 1)) for _ in
-                     xrange(config.gt_k)]
-    averaged_imgs_norm = [0. for _ in xrange(config.gt_k)]
+                     range(config.gt_k)]
+    averaged_imgs_norm = [0. for _ in range(config.gt_k)]
     counter = 0
     for b_i, batch in enumerate(mapping_test_dataloader):
       imgs = batch[0].numpy()  # n, c, h, w
       n, c, h, w = imgs.shape
       assert (c == 1)
 
-      for offset in xrange(n):
+      for offset in range(n):
         img_i = counter + offset
         img = imgs[offset]
         img = img.transpose((1, 2, 0))
@@ -120,7 +120,7 @@ def save_progress(config, net, mapping_assignment_dataloader,
 
       counter += n
 
-    for c in xrange(config.gt_k):
+    for c in range(config.gt_k):
       if averaged_imgs_norm[c] > (sys.float_info.epsilon):
         averaged_imgs[c] /= averaged_imgs_norm[c]
 
@@ -161,7 +161,7 @@ def get_coord(probs, num_classes):
 
   fst_angle = 0.
 
-  for c in xrange(num_classes):
+  for c in range(num_classes):
     # compute x, y coordinates
     coords = np.ones(2) * 2 * np.pi * (float(c) / num_classes) + fst_angle
     coords[0] = np.sin(coords[0])

@@ -13,7 +13,7 @@ def multioutput_k_means_assess(config, x_outs_all, targets, verbose=0):
   nmis = []
   aris = []
   best_i = None
-  for i in xrange(num_sub_heads):
+  for i in range(num_sub_heads):
     x_outs = x_outs_all[i]  # not flat
     n, dlen = x_outs.shape
     # random_state=0

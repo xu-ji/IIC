@@ -21,14 +21,14 @@ class ClusterNet5gTwoHeadHead(nn.Module):
 
       self.heads = nn.ModuleList([nn.Sequential(
         nn.Linear(512 * BasicBlock.expansion, output_k),
-        nn.Softmax(dim=1)) for _ in xrange(self.num_sub_heads)])
+        nn.Softmax(dim=1)) for _ in range(self.num_sub_heads)])
     else:
       self.head = nn.Linear(512 * BasicBlock.expansion, output_k)
 
   def forward(self, x, kmeans_use_features=False):
     if not self.semisup:
       results = []
-      for i in xrange(self.num_sub_heads):
+      for i in range(self.num_sub_heads):
         if kmeans_use_features:
           results.append(x)  # duplicates
         else:

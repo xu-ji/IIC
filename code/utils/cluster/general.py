@@ -33,7 +33,7 @@ def reorder_train_deterministic(dataset):
 
   # 0, 5000...5019, 1, 5020...5039, 2, ... 4999, 104980 ... 104999
   ids = []
-  for i in xrange(5000):
+  for i in range(5000):
     ids.append(i)
     ids += range(5000 + i * 20, 5000 + (i + 1) * 20)
 
@@ -56,6 +56,6 @@ def print_weights_and_grad(net):
 
 def nice(dict):
   res = ""
-  for k, v in dict.iteritems():
+  for k, v in dict.items():
     res += ("\t%s: %s\n" % (k, v))
   return res

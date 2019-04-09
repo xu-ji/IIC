@@ -30,7 +30,7 @@ class ClusterNet6cTwoHeadHead(nn.Module):
       # include softmax
       self.heads = nn.ModuleList([nn.Sequential(
         nn.Linear(num_features * features_sp_size * features_sp_size, output_k),
-        nn.Softmax(dim=1)) for _ in xrange(self.num_sub_heads)])
+        nn.Softmax(dim=1)) for _ in range(self.num_sub_heads)])
     else:
       self.head = nn.Linear(num_features * features_sp_size * features_sp_size,
                             output_k)
@@ -39,7 +39,7 @@ class ClusterNet6cTwoHeadHead(nn.Module):
 
     if not self.semisup:
       results = []
-      for i in xrange(self.num_sub_heads):
+      for i in range(self.num_sub_heads):
         if kmeans_use_features:
           results.append(x)  # duplicates
         else:
