@@ -17,7 +17,7 @@ def render(data, mode, name, colour_map=None, offset=0, out_dir=""):
   # multiple inputs
   if ("image" in mode) or mode == "label":
     if len(data.shape) == 4:
-      for i in xrange(data.shape[0]):
+      for i in range(data.shape[0]):
         render(data[i, :, :, :], mode=mode, name=(name + "_%d" % (i + offset)),
                out_dir=out_dir)
       return
@@ -26,7 +26,7 @@ def render(data, mode, name, colour_map=None, offset=0, out_dir=""):
   else:
     assert (mode == "mask" or mode == "matrix" or mode == "preds")
     if len(data.shape) == 3:
-      for i in xrange(data.shape[0]):
+      for i in range(data.shape[0]):
         render(data[i, :, :], mode=mode, name=(name + "_%d" % (i + offset)),
                colour_map=colour_map, out_dir=out_dir)
       return
@@ -131,7 +131,7 @@ def render(data, mode, name, colour_map=None, offset=0, out_dir=""):
     h, w = data.shape
     img = np.zeros((h, w, 3), dtype=np.uint8)
     # ignore <0 labels
-    for c in xrange(0, data.max() + 1):
+    for c in range(0, data.max() + 1):
       img[data == c, :] = colour_map[c]
 
     img = Image.fromarray(img)
@@ -143,7 +143,7 @@ def render(data, mode, name, colour_map=None, offset=0, out_dir=""):
 
 def _make_hist(tensor):
   res = np.zeros(183)
-  for i in xrange(-1, 181 + 1):
+  for i in range(-1, 181 + 1):
     res[i + 1] = (tensor == i).sum()
 
   return res

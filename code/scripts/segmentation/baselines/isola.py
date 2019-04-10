@@ -252,7 +252,7 @@ else:
 
 fig, axarr = plt.subplots(3, sharex=False, figsize=(20, 20))
 
-for e_i in xrange(next_epoch, config.num_epochs):
+for e_i in range(next_epoch, config.num_epochs):
   torch.cuda.empty_cache()
 
   net.module.train()
@@ -329,7 +329,7 @@ for e_i in xrange(next_epoch, config.num_epochs):
   axarr[1].set_title("ACC")
 
   axarr[2].clear()
-  for c in xrange(config.gt_k):
+  for c in range(config.gt_k):
     axarr[2].plot(config.epoch_masses[:, c])
   axarr[2].set_title("Masses (reordered)")
 

@@ -609,7 +609,7 @@ class _CocoFull(_Coco):
     new_label_map = np.zeros(label_map.shape, dtype=label_map.dtype)
 
     # -1 stays -1
-    for c in xrange(182):
+    for c in range(182):
       new_label_map[label_map == c] = self._fine_to_coarse_dict[c]
 
     return new_label_map
@@ -706,7 +706,7 @@ class _CocoFew(_Coco):
 
     # excludes -1 (fine - see usage in filter label - as with Coco10kFull)
     _fine_to_few_dict = {}
-    for c in xrange(182):
+    for c in range(182):
       orig_coarse_ind = self._fine_to_coarse_dict[c]
       if orig_coarse_ind in self.label_orig_coarse_inds:
         new_few_ind = self.label_orig_coarse_inds.index(orig_coarse_ind)
@@ -751,7 +751,7 @@ class _CocoFew(_Coco):
     # -1 stays -1
     new_label_map = np.zeros(label.shape, dtype=label.dtype)
 
-    for c in xrange(182):
+    for c in range(182):
       new_label_map[label == c] = self._fine_to_few_dict[c]
 
     mask = (new_label_map >= 0)

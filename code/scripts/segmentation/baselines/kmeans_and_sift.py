@@ -73,7 +73,7 @@ def _get_vectorised_sift_samples(archetype_config, dataloader):
       assert (batch_sz == curr_batch_sz)
 
     start = b_i * batch_sz
-    for i in xrange(curr_batch_sz):
+    for i in range(curr_batch_sz):
       grey_img = cv2.cvtColor(imgs[i, :, :, :], cv2.COLOR_RGB2GRAY)
       locs, descs = vlfeat.vl_dsift(grey_img, step=SIFT_STEP)
       descs = descs.transpose((1, 0))  # 40*40, 128
