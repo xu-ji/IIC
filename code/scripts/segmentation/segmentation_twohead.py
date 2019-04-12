@@ -232,7 +232,7 @@ def train():
   # Train
   # ------------------------------------------------------------------------
 
-  for e_i in xrange(next_epoch, config.num_epochs):
+  for e_i in range(next_epoch, config.num_epochs):
     print("Starting e_i: %d %s" % (e_i, datetime.now()))
     sys.stdout.flush()
 
@@ -259,7 +259,7 @@ def train():
       avg_loss_no_lamb = 0.
       avg_loss_count = 0
 
-      for tup in itertools.izip(*iterators):
+      for tup in zip(*iterators):
         net.module.zero_grad()
 
         if not config.no_sobel:
@@ -279,7 +279,7 @@ def train():
                                     config.input_sz).to(torch.float32).cuda()
 
         curr_batch_sz = tup[0][0].shape[0]
-        for d_i in xrange(config.num_dataloaders):
+        for d_i in range(config.num_dataloaders):
           img1, img2, affine2_to_1, mask_img1 = tup[d_i]
           assert (img1.shape[0] == curr_batch_sz)
 
@@ -314,7 +314,7 @@ def train():
         avg_loss_batch = None  # avg over the heads
         avg_loss_no_lamb_batch = None
 
-        for i in xrange(config.num_sub_heads):
+        for i in range(config.num_sub_heads):
           loss, loss_no_lamb = loss_fn(x1_outs[i],
                                        x2_outs[i],
                                        all_affine2_to_1=all_affine2_to_1,

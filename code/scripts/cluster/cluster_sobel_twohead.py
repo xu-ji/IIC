@@ -196,7 +196,6 @@ head_epochs["A"] = config.head_A_epochs
 head_epochs["B"] = config.head_B_epochs
 
 # Results ----------------------------------------------------------------------
-
 if config.restart:
   if not config.restart_from_best:
     next_epoch = config.last_epoch + 1  # corresponds to last saved model
