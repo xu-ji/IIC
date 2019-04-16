@@ -315,11 +315,10 @@ def train(render_count=-1):
 
           all_imgs = torch.zeros((config.batch_sz, config.in_channels,
                                   config.input_sz,
-                                  config.input_sz), requires_grad=True).cuda()
+                                  config.input_sz)).cuda()
           all_imgs_tf = torch.zeros((config.batch_sz, config.in_channels,
                                      config.input_sz,
-                                     config.input_sz),
-                                    requires_grad=True).cuda()
+                                     config.input_sz)).cuda()
 
           imgs_curr = tup[0][0]  # always the first
           curr_batch_sz = imgs_curr.size(0)
