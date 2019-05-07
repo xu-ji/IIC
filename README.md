@@ -19,6 +19,9 @@ How to set up the segmentation datasets <a href="https://github.com/xu-ji/IIC/bl
 # Package dependencies
 Listed <a href="https://github.com/xu-ji/IIC/blob/master/package_versions.txt">here</a>. You may want to use e.g. virtualenv to isolate the environment. It's an easy way to install package versions specific to the repository that won't affect the rest of the system.
 
+# Running on your own dataset
+You can either plug our loss (paper fig. 4, <a href="https://github.com/xu-ji/IIC/blob/master/code/utils/cluster/IID_losses.py#L6">here</a> and <a href="https://github.com/xu-ji/IIC/blob/master/code/utils/segmentation/IID_losses.py#L86">here</a>) into your own code, or change scripts in this codebase. Auxiliary overclustering makes a large difference (paper table 2) and is easy to implement, so it's strongly recommend even if you are using your own code; the others settings are less important. To edit existing scripts to use different datasets see <a href="https://github.com/xu-ji/IIC/issues/8">here</a>.
+
 # Forks
 There are various forks of the main repository. In general I have not verified the code or performance, but check them out as someone may be working with versions of interest to you. For example:
 - https://github.com/nathanin/IIC (Tensorflow)
