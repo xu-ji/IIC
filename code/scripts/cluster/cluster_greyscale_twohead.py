@@ -341,8 +341,6 @@ def train(render_count=-1):
           all_imgs = all_imgs[:curr_total_batch_sz, :, :, :]
           all_imgs_tf = all_imgs_tf[:curr_total_batch_sz, :, :, :]
 
-          assert (all_imgs.requires_grad and all_imgs_tf.requires_grad)
-
           x_outs = net(all_imgs)
           x_tf_outs = net(all_imgs_tf)
 
