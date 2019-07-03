@@ -380,15 +380,6 @@ def train():
       "Pre: time %s: \n %s" % (datetime.now(), nice(config.epoch_stats[-1])))
     sys.stdout.flush()
 
-    if "Potsdam" in config.dataset:
-      if (e_i == 4) and max(config.epoch_acc) < 0.52:
-        print("only got %s 4th, restarting" % max(config.epoch_acc))
-        return  # restart
-
-      if (e_i == 10) and max(config.epoch_acc) < 0.64:
-        print("only got %s 10th, restarting" % max(config.epoch_acc))
-        return  # restart
-
     axarr[0].clear()
     axarr[0].plot(config.epoch_acc)
     axarr[0].set_title("acc (best), top: %f" % max(config.epoch_acc))
