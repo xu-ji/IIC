@@ -25,7 +25,7 @@ test_code = False
 
 model_ind = 545
 net_name = "best"
-best_matches = {545: [(0, 0), (1, 1), (2, 2)]}  # can be found in config file
+best_matches = {545: [(0, 0), (1, 1), (2, 2)]} # can find with clone_and_eval.py
 best_match = best_matches[model_ind]
 
 SOURCE_IMGS_DIR = "/scratch/local/ssd/xuji/POTSDAM/raw/4_Ortho_RGBIR"

@@ -17,6 +17,9 @@ from code.utils.segmentation.segmentation_eval import \
   segmentation_eval
 from code.utils.segmentation.data import segmentation_create_dataloaders
 
+# Clone any old model (from config and best_net) and re-evaluate, including
+# finding 1-1 mapping from output channels to ground truth clusters.
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--model_ind", type=int, required=True)
 parser.add_argument("--old_model_ind", type=int, required=True)
