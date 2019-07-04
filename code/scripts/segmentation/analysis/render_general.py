@@ -59,8 +59,7 @@ for model_ind in model_inds:
 
   if "Coco" in config.dataset:
     dataloaders_train, mapping_assignment_dataloader, mapping_test_dataloader \
-      = \
-      make_Coco_dataloaders(config)
+      = make_Coco_dataloaders(config)
     all_label_names = [
       "sky-stuff",
       "plant-stuff",
@@ -73,8 +72,7 @@ for model_ind in model_inds:
       all_label_names += ["animal-things"]
   elif config.dataset == "Potsdam":
     dataloaders_train, mapping_assignment_dataloader, mapping_test_dataloader \
-      = \
-      make_Potsdam_dataloaders(config)
+      = make_Potsdam_dataloaders(config)
     if config.use_coarse_labels:
       all_label_names = ["roads and cars",
                          "buildings and clutter",
@@ -122,26 +120,29 @@ for model_ind in model_inds:
       if reassess_acc:
         print("... reassessing acc %s" % datetime.now())
         sys.stdout.flush()
-        acc, _, _, _ = segmentation_eval(config, net,
+        stats_dict = segmentation_eval(config, net,
                                          mapping_assignment_dataloader,
                                          mapping_test_dataloader,
-                                         sobel=(
-                                           not config.no_sobel),
+                                         sobel=(not config.no_sobel),
+                                         return_only=True,
                                          verbose=0)
+        acc = stats_dict["best"]
         print("... reassessment finished, got acc %f" % acc)
         sys.stdout.flush()
         continue
 
       print(
         "starting to run test data through for rendering %s" % datetime.now())
-
-      head_i, match = _get_assignment_data_matches(net,
+      all_matches, all_accs = _get_assignment_data_matches(net,
                                                    mapping_assignment_dataloader,
                                                    config, sobel=(not config.no_sobel),
                                                    using_IR=config.using_IR,
-                                                   find_best_head_and_match=True,
                                                    get_data_fn=_segmentation_get_data,
+                                                   just_matches=False,
                                                    verbose=1)
+
+      head_i = np.argmax(all_accs)
+      match = all_matches[head_i]
       print("got best head %d %s" % (head_i, datetime.now()))
       print("best match %s" % str(match))
 

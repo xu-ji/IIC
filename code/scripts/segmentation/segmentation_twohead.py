@@ -79,7 +79,7 @@ parser.add_argument("--restart", default=False, action="store_true")
 parser.add_argument("--save_freq", type=int, default=5)
 parser.add_argument("--test_code", default=False, action="store_true")
 
-parser.add_argument("--head_A_first", default=False, action="store_true")
+parser.add_argument("--head_B_first", default=False, action="store_true")
 parser.add_argument("--batchnorm_track", default=False, action="store_true")
 
 # data transforms
@@ -177,9 +177,9 @@ def train():
   if config.restart:
     optimiser.load_state_dict(dict["optimiser"])
 
-  heads = ["B", "A"]
-  if config.head_A_first:
-    heads = ["A", "B"]
+  heads = ["A", "B"]
+  if hasattr(config, "head_B_first") and config.head_B_first:
+    heads = ["B", "A"]
 
   # Results
   # ----------------------------------------------------------------------
