@@ -24,5 +24,6 @@ You can either plug our loss (paper fig. 4, <a href="https://github.com/xu-ji/II
 
 # Forks
 There are various forks of the main repository. In general I have not verified the code or performance, but check them out as someone may be working with versions of interest to you. For example:
+- https://github.com/astirn/IIC (Tensorflow)
 - https://github.com/nathanin/IIC (Tensorflow)
 - https://github.com/sebastiani/IIC (Python 3, Pytorch 1.0)
