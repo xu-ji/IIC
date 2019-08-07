@@ -2,6 +2,8 @@
 
 This repository contains PyTorch code for the <a href="https://arxiv.org/abs/1807.06653">IIC paper</a>.
 
+Accepted and will be shown at ICCV 2019.
+
 IIC is an unsupervised clustering objective that trains neural networks into image classifiers and segmenters without labels, with state-of-the-art semantic accuracy. 
 
 We set 9 new state-of-the-art records on unsupervised STL10 (unsupervised variant of ImageNet), CIFAR10, CIFAR20, MNIST, COCO-Stuff-3, COCO-Stuff, Potsdam-3, Potsdam, and supervised/semisupervised STL. For example:
