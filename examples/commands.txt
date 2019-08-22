@@ -8,7 +8,7 @@ Note: "IID" (previous name) and "IIC" are equivalent in the code.
 
 All datasets use default PyTorch interface except COCO-Stuff and Potsdam, which have their own classes. See ../datasets
 
-See the updated supplementary material (paper/suppmat.pdf sections 10, 11) for more discussion of evaluating sub-heads and avoiding degenerate clustering solutions.
+Note there are two settings that can be used to evaluate models (selecting sub-head based on loss, or accuracy). See experiments section, supplementary material section 10 and section 4 on this page.
 
 1. CLUSTERING
 
@@ -108,7 +108,10 @@ See the updated supplementary material (paper/suppmat.pdf sections 10, 11) for m
   This was implemented for MNIST. The progression images are rendered on the fly during training. Turn it on with "--save_progression" option when training on MNIST. E.g.:
   export CUDA_VISIBLE_DEVICES=3 && nohup python -m code.scripts.cluster.cluster_greyscale_twohead --model_ind 726 --arch ClusterNet6cTwoHead --mode IID --dataset MNIST --dataset_root /scratch/local/ssd/xuji/MNIST --gt_k 10 --output_k_A 50 --output_k_B 10  --lamb_A 1.0 --lamb_B 1.0 --lr 0.0001 --batch_sz 700 --num_dataloaders 5 --num_sub_heads 5 --crop_orig --crop_other --tf1_crop centre_half --tf2_crop random --tf1_crop_sz 20  --tf2_crop_szs 16 20 24 --input_sz 24 --rot_val 25 --no_flip --head_B_epochs 2  --save_progression --num_epochs 7 --save_freq 1000 > out/gnodee4_gpu3_m726.out &
 
-4. SELECT SUB-HEAD BY LOWEST IIC LOSS - supp. mat.
+4. SELECT SUB-HEAD BY LOWEST IIC LOSS - table 1, table 2, supp. mat. section 10
 
-  The output is included in this directory.
-  export CUDA_VISIBLE_DEVICES=0 && nohup python -m code.scripts.cluster.analysis.print_sub_heads_eval --model_inds 569 570 640 579 685 > select_subheads_by_loss.out &
+  The outputs are included in this directory.
+
+  export CUDA_VISIBLE_DEVICES=0,1 && nohup python -m code.scripts.cluster.analysis.print_sub_heads_eval --model_inds 569 570 640 579 685 > subheads_lowest_loss.out &
+
+  export CUDA_VISIBLE_DEVICES=0,1 && nohup python -m code.scripts.cluster.analysis.print_sub_heads_eval --model_inds 692 693 694 695 569 > subheads_ablation_lowest_loss.out &

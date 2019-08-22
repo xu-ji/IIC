@@ -1,0 +1,148 @@
+/users/xuji/iid/iid_env/lib/python2.7/site-packages/torch/nn/parallel/data_parallel.py:24: UserWarning: 
+    There is an imbalance between your GPUs. You may want to exclude GPU 0 which
+    has less than 75% of the memory or cores of GPU 1. You can do so by setting
+    the device_ids argument to DataParallel, or by setting the CUDA_VISIBLE_DEVICES
+    environment variable.
+  warnings.warn(imbalance_warn.format(device_ids[min_pos], device_ids[max_pos]))
+
+692 -------------------------------------------------
+Loading restarting config from: /scratch/shared/slow/xuji/iid_private/692/config.pickle
+avg_pool_sz 5
+semisup: False
+adding unlabelled data for STL10
+(_sobel_multioutput_make_transforms) config.include_rgb: False
+not using cutout
+not demeaning data
+not per image demeaning data
+Making datasets with <class 'torchvision.datasets.stl10.STL10'> and None
+Creating auxiliary dataloader ind 0 out of 5 time 2019-07-31 12:27:25.594239
+Creating auxiliary dataloader ind 1 out of 5 time 2019-07-31 12:27:43.824128
+Creating auxiliary dataloader ind 2 out of 5 time 2019-07-31 12:28:01.860875
+Creating auxiliary dataloader ind 3 out of 5 time 2019-07-31 12:28:20.465144
+Creating auxiliary dataloader ind 4 out of 5 time 2019-07-31 12:28:38.626674
+Length of datasets vector 6
+Number of batches per epoch: 808
+Creating auxiliary dataloader ind 0 out of 5 time 2019-07-31 12:29:08.047792
+Creating auxiliary dataloader ind 1 out of 5 time 2019-07-31 12:29:19.081958
+Creating auxiliary dataloader ind 2 out of 5 time 2019-07-31 12:29:29.610805
+Creating auxiliary dataloader ind 3 out of 5 time 2019-07-31 12:29:40.748606
+Creating auxiliary dataloader ind 4 out of 5 time 2019-07-31 12:29:51.989004
+Length of datasets vector 6
+Number of batches per epoch: 93
+at batch 0
+[-157.35472679 -157.75778365 -157.63130891 -157.61369812 -157.5841316 ]
+best sub_head by loss: 1
+best sub_head by eval: 2
+... loss select acc: 0.437846, eval select acc: 0.440231
+
+693 -------------------------------------------------
+Loading restarting config from: /scratch/shared/slow/xuji/iid_private/693/config.pickle
+avg_pool_sz 5
+semisup: False
+adding unlabelled data for STL10
+(_sobel_multioutput_make_transforms) config.include_rgb: False
+not using cutout
+not demeaning data
+not per image demeaning data
+Making datasets with <class 'torchvision.datasets.stl10.STL10'> and None
+Creating auxiliary dataloader ind 0 out of 5 time 2019-07-31 12:33:19.908337
+Creating auxiliary dataloader ind 1 out of 5 time 2019-07-31 12:33:38.171307
+Creating auxiliary dataloader ind 2 out of 5 time 2019-07-31 12:33:56.637960
+Creating auxiliary dataloader ind 3 out of 5 time 2019-07-31 12:34:15.831665
+Creating auxiliary dataloader ind 4 out of 5 time 2019-07-31 12:34:33.971705
+Length of datasets vector 6
+Number of batches per epoch: 808
+Creating auxiliary dataloader ind 0 out of 5 time 2019-07-31 12:35:03.071928
+Creating auxiliary dataloader ind 1 out of 5 time 2019-07-31 12:35:13.958569
+Creating auxiliary dataloader ind 2 out of 5 time 2019-07-31 12:35:25.094523
+Creating auxiliary dataloader ind 3 out of 5 time 2019-07-31 12:35:36.341785
+Creating auxiliary dataloader ind 4 out of 5 time 2019-07-31 12:35:47.317215
+Length of datasets vector 6
+Number of batches per epoch: 93
+at batch 0
+[-161.50011694]
+best sub_head by loss: 0
+best sub_head by eval: 0
+... loss select acc: 0.576231, eval select acc: 0.576231
+
+694 -------------------------------------------------
+Loading restarting config from: /scratch/shared/slow/xuji/iid_private/694/config.pickle
+avg_pool_sz 5
+semisup: False
+adding unlabelled data for STL10
+(_sobel_multioutput_make_transforms) config.include_rgb: False
+not using cutout
+not demeaning data
+not per image demeaning data
+Making datasets with <class 'torchvision.datasets.stl10.STL10'> and None
+Creating auxiliary dataloader ind 0 out of 1 time 2019-07-31 12:39:07.830906
+Length of datasets vector 2
+Number of batches per epoch: 162
+Creating auxiliary dataloader ind 0 out of 1 time 2019-07-31 12:39:35.518759
+Length of datasets vector 2
+Number of batches per epoch: 19
+at batch 0
+[-35.80216122 -35.87545753 -35.64521825 -35.53799307 -35.98432899]
+best sub_head by loss: 4
+best sub_head by eval: 3
+... loss select acc: 0.470077, eval select acc: 0.523462
+
+695 -------------------------------------------------
+Loading restarting config from: /scratch/shared/slow/xuji/iid_private/695/config.pickle
+avg_pool_sz 5
+semisup: False
+not using unlabelled data for STL10
+(_sobel_multioutput_make_transforms) config.include_rgb: False
+not using cutout
+not demeaning data
+not per image demeaning data
+Making datasets with <class 'torchvision.datasets.stl10.STL10'> and None
+Creating auxiliary dataloader ind 0 out of 5 time 2019-07-31 12:40:58.244174
+Creating auxiliary dataloader ind 1 out of 5 time 2019-07-31 12:41:09.263790
+Creating auxiliary dataloader ind 2 out of 5 time 2019-07-31 12:41:20.681412
+Creating auxiliary dataloader ind 3 out of 5 time 2019-07-31 12:41:31.888480
+Creating auxiliary dataloader ind 4 out of 5 time 2019-07-31 12:41:43.138490
+Length of datasets vector 6
+Number of batches per epoch: 93
+Creating auxiliary dataloader ind 0 out of 5 time 2019-07-31 12:42:05.753476
+Creating auxiliary dataloader ind 1 out of 5 time 2019-07-31 12:42:16.868382
+Creating auxiliary dataloader ind 2 out of 5 time 2019-07-31 12:42:28.037961
+Creating auxiliary dataloader ind 3 out of 5 time 2019-07-31 12:42:39.092755
+Creating auxiliary dataloader ind 4 out of 5 time 2019-07-31 12:42:50.171762
+Length of datasets vector 6
+Number of batches per epoch: 93
+at batch 0
+[-168.2791754  -168.2740773  -168.39298797 -169.15408981 -169.22009122]
+best sub_head by loss: 4
+best sub_head by eval: 0
+... loss select acc: 0.499077, eval select acc: 0.520308
+
+569 -------------------------------------------------
+Loading restarting config from: /scratch/shared/slow/xuji/iid_private/569/config.pickle
+avg_pool_sz 5
+semisup: False
+adding unlabelled data for STL10
+(_sobel_multioutput_make_transforms) config.include_rgb: False
+not using cutout
+not demeaning data
+not per image demeaning data
+Making datasets with <class 'torchvision.datasets.stl10.STL10'> and None
+Creating auxiliary dataloader ind 0 out of 5 time 2019-07-31 12:46:05.030701
+Creating auxiliary dataloader ind 1 out of 5 time 2019-07-31 12:46:24.785841
+Creating auxiliary dataloader ind 2 out of 5 time 2019-07-31 12:46:42.926827
+Creating auxiliary dataloader ind 3 out of 5 time 2019-07-31 12:47:01.174971
+Creating auxiliary dataloader ind 4 out of 5 time 2019-07-31 12:47:19.212684
+Length of datasets vector 6
+Number of batches per epoch: 808
+Creating auxiliary dataloader ind 0 out of 5 time 2019-07-31 12:47:47.739230
+Creating auxiliary dataloader ind 1 out of 5 time 2019-07-31 12:47:58.755884
+Creating auxiliary dataloader ind 2 out of 5 time 2019-07-31 12:48:09.690621
+Creating auxiliary dataloader ind 3 out of 5 time 2019-07-31 12:48:20.569149
+Creating auxiliary dataloader ind 4 out of 5 time 2019-07-31 12:48:31.524741
+Length of datasets vector 6
+Number of batches per epoch: 93
+at batch 0
+[-180.32614493 -180.8320719  -181.81022108 -180.82873213 -181.8627429 ]
+best sub_head by loss: 4
+best sub_head by eval: 0
+... loss select acc: 0.595846, eval select acc: 0.610308
