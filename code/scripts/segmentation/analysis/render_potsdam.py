@@ -9,24 +9,31 @@ import numpy as np
 import torch
 from PIL import Image
 from libtiff import TIFF
+import argparse
 
 import code.archs as archs
 
-# Script to render Potsdam model e.g. 545
+# Script to render Potsdam model
 
-# Requires model files for 545 and Potsdam data files
+# export CUDA_VISIBLE_DEVICES=3 && nohup python -m code.scripts.segmentation.analysis.render_potsdam --model_ind 738 --net_name best.pytorch > out/gnodec4_render_738.out &
+
 
 # Original image rendered as *_img.png
 # Our predictions rendered as *_preds.png
 # Ground truth rendered as *_gt.png
 
 # Settings ----
-test_code = False
+args = argparse.ArgumentParser()
+args.add_argument("--test_code", default=False, action="store_true")
+args.add_argument("--model_ind", type=int, required=True)
+args.add_argument("--net_name", type=str, default="best")
 
-model_ind = 545
-net_name = "best"
-best_matches = {545: [(0, 0), (1, 1), (2, 2)]} # can find with clone_and_eval.py
-best_match = best_matches[model_ind]
+args.add_argument("--best_match", type=int, nargs="+", default=[],
+                  help="Not compulsory if match has been stored in config")
+args = args.parse_args()
+
+#best_matches = {545: [(0, 0), (1, 1), (2, 2)]} # can find with clone_and_eval.py
+#best_match = best_matches[model_ind]
 
 SOURCE_IMGS_DIR = "/scratch/local/ssd/xuji/POTSDAM/raw/4_Ortho_RGBIR"
 SOURCE_IMGS_SUFFIX = "_RGBIR.tif"
@@ -35,7 +42,7 @@ SOURCE_GT_SUFFIX = "_label.tif"
 NUM_SOURCE_IMGS = 38
 NUM_SOURCE_GT = 24
 
-if test_code:
+if args.test_code:
   NUM_SOURCE_IMGS = 2
   NUM_SOURCE_GT = 2
 
@@ -52,12 +59,12 @@ _fine_to_coarse_dict = {0: 0, 4: 0,  # roads and cars
 
 def main():
   # Load the model config ----
-  out_dir = os.path.join(IN_OUT_ROOT, str(model_ind))
+  out_dir = os.path.join(IN_OUT_ROOT, str(args.model_ind))
   reloaded_config_path = os.path.join(out_dir, "config.pickle")
   print("Loading restarting config from: %s" % reloaded_config_path)
   with open(reloaded_config_path, "rb") as config_f:
     config = pickle.load(config_f)
-  assert (config.model_ind == model_ind)
+  assert (config.model_ind == args.model_ind)
 
   out_sub_dir = os.path.join(out_dir, SUB_DIR)
   if not os.path.exists(out_sub_dir):
@@ -129,7 +136,7 @@ def main():
     next_index += OUT_PER_SOURCE
     num_img += 1
 
-    if test_code and num_img == NUM_SOURCE_IMGS:
+    if args.test_code and num_img == NUM_SOURCE_IMGS:
       break
 
   assert (next_index == NUM_TRAIN)
@@ -218,9 +225,13 @@ def predict_and_reassemble(config, input_blocks, num_big_imgs,
 
   # Load model
   net = archs.__dict__[config.arch](config)
-  model_path = os.path.join(config.out_dir, net_name + "_net.pytorch")
-  net.load_state_dict(
-    torch.load(model_path, map_location=lambda storage, loc: storage))
+  model_path = os.path.join(config.out_dir, args.net_name)
+  stored = torch.load(model_path, map_location=lambda storage, loc: storage)
+  if "net" in stored.keys():
+    net.load_state_dict(stored["net"])
+  else:
+    net.load_state_dict(stored)
+
   net.cuda()
   net = torch.nn.DataParallel(net)
   net.module.eval()  # <- put in eval state
@@ -258,6 +269,19 @@ def predict_and_reassemble(config, input_blocks, num_big_imgs,
   sys.stdout.flush()
 
   # Apply match
+  if not (args.best_match == []):
+    best_match = []
+    for pred_i in xrange(config.output_k):
+      best_match.append(pred_i, args.best_match[pred_i])
+  else:
+    best_epoch = np.argmax(np.array(config.epoch_acc))
+    stats = config.epoch_stats[best_epoch]
+    best_match = stats["best_train_sub_head_match"]
+    assert(stats["best_train_sub_head"] == 0) # one sub head
+    assert(stats["test_accs"][0] == config.epoch_acc[best_epoch])
+
+  assert(len(best_match) == config.output_k)
+
   reordered_preds = np.zeros((num_imgs, h, w), dtype=np.int32)
   for pred_i, target_i in best_match:
     reordered_preds[flat_preds == pred_i] = target_i
