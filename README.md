@@ -2,8 +2,6 @@
 
 This repository contains PyTorch code for the <a href="https://arxiv.org/abs/1807.06653">IIC paper</a>.
 
-Accepted and will be shown at ICCV 2019.
-
 IIC is an unsupervised clustering objective that trains neural networks into image classifiers and segmenters without labels, with state-of-the-art semantic accuracy. 
 
 We set 9 new state-of-the-art records on unsupervised STL10 (unsupervised variant of ImageNet), CIFAR10, CIFAR20, MNIST, COCO-Stuff-3, COCO-Stuff, Potsdam-3, Potsdam, and supervised/semisupervised STL. For example:
@@ -14,9 +12,21 @@ Commands used to train the models in the paper <a href="https://github.com/xu-ji
 
 <img src="https://github.com/xu-ji/IIC/blob/master/paper/progression_labelled.png" alt="progression" height=200>
 
-How to download all our trained models <a href="https://github.com/xu-ji/IIC/blob/master/examples/trained_models.txt">here</a>.
+How to download all our trained models including plots <a href="https://github.com/xu-ji/IIC/blob/master/examples/trained_models.txt">here</a>.
 
 How to set up the segmentation datasets <a href="https://github.com/xu-ji/IIC/blob/master/datasets/README.txt">here</a>.
+
+# Citation
+    @inproceedings{ji2019invariant,
+        title={Invariant information clustering for unsupervised image classification and segmentation},
+        author={Ji, Xu and Henriques, Jo{\~a}o F and Vedaldi, Andrea},
+        booktitle={Proceedings of the IEEE International Conference on Computer Vision},
+        pages={9865--9874},
+        year={2019}
+    }
+
+# Common questions
+Please have a look under the issues tab. For example, why the method doesn't actually assume independence between `z` and `z'` <a href="https://github.com/xu-ji/IIC/issues/31">here</a>. 
 
 # Package dependencies
 Listed <a href="https://github.com/xu-ji/IIC/blob/master/package_versions.txt">here</a>. You may want to use e.g. virtualenv to isolate the environment. It's an easy way to install package versions specific to the repository that won't affect the rest of the system.
