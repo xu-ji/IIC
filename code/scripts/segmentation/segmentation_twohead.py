@@ -21,7 +21,7 @@ from code.utils.segmentation.segmentation_eval import \
   segmentation_eval
 from code.utils.segmentation.IID_losses import IID_segmentation_loss, \
   IID_segmentation_loss_uncollapsed
-from code.utils.segmentation.data import segmentation_create_dataloaders
+from code.datasets.segmentation.mri_dataloader import segmentation_create_dataloaders
 from code.utils.segmentation.general import set_segmentation_input_channels
 
 """
