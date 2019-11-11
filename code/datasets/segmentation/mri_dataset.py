@@ -303,6 +303,7 @@ class _Mri(data.Dataset):
     # dataloader must return tensors (conversion forced in their code anyway)
     return img, torch.from_numpy(label), mask
   def __getitem__(self, index):
+    print(index)
     subject_id = self.files[index]
     image, label = self._load_data(subject_id)
 
