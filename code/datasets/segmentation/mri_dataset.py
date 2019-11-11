@@ -82,7 +82,7 @@ class _Mri(data.Dataset):
     # This returns gpu tensors.
     # label is passed in canonical [0 ... 181] indexing
 
-    print (img.shape[:2], label.shape)
+    # print (img.shape[:2], label.shape)
     img = img.astype(np.float32)
     label = label.astype(np.int32)
 
@@ -197,7 +197,7 @@ class _Mri(data.Dataset):
     # This returns gpu tensors.
     # label is passed in canonical [0 ... 181] indexing
 
-    print (img.shape[:2], label.shape)
+    # print (img.shape[:2], label.shape)
     img = img.astype(np.float32)
     label = label.astype(np.int32)
 
@@ -269,7 +269,7 @@ class _Mri(data.Dataset):
     #   Label map: 2D, flat int64, [0 ... sef.gt_k - 1]
     # label is passed in canonical [0 ... 181] indexing
 
-    print (img.shape[:2], label.shape)
+    # print (img.shape[:2], label.shape)
     img = img.astype(np.float32)
     label = label.astype(np.int32)
 
@@ -306,7 +306,7 @@ class _Mri(data.Dataset):
   def __getitem__(self, index):
     subject_idx = index // NUM_SLICES
     slice_idx = index % NUM_SLICES
-    print(subject_idx, slice_idx, index)
+    # print(subject_idx, slice_idx, index)
     subject_id = self.files[subject_idx]
     image, label = self._load_data(subject_id, slice_idx)
 
@@ -374,7 +374,7 @@ class DiffSeg(_Mri):
   def _set_files(self):
     if self.split in ["all"]:
       subjects = sorted(glob(osp.join(self.root, 'mwu*')))
-      print(len(subjects))
+      # print(len(subjects))
       self.files = subjects
     else:
       raise ValueError("Invalid split name: {}".format(self.split))
@@ -386,14 +386,8 @@ class DiffSeg(_Mri):
     # each slice is 90 * 108
     # 90 slices per subject
     # 4 channels, each channel representing b=0, dwi, md and fa
-<<<<<<< HEAD
-    image = image_mat["imgs"][:,:,40,:]
-    # using the aparc final FreeSurfer segmentation results
-    label = image_mat["segs"][:, :, 40, 1]
-=======
     image = image_mat["imgs"][:,:,slice_idx,:]
     # using the aparc final FreeSurfer segmentation results
     label = image_mat["segs"][:, :, slice_idx, 1]
->>>>>>> a8d7f3ef3cebe222c71fa07f3718dfeb152b7708
 
     return image, label
