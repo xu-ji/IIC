@@ -82,7 +82,7 @@ class _Mri(data.Dataset):
     # This returns gpu tensors.
     # label is passed in canonical [0 ... 181] indexing
 
-    assert (img.shape[:2] == label.shape)
+    print (img.shape[:2], label.shape)
     img = img.astype(np.float32)
     label = label.astype(np.int32)
 
@@ -197,7 +197,7 @@ class _Mri(data.Dataset):
     # This returns gpu tensors.
     # label is passed in canonical [0 ... 181] indexing
 
-    assert (img.shape[:2] == label.shape)
+    print (img.shape[:2], label.shape)
     img = img.astype(np.float32)
     label = label.astype(np.int32)
 
@@ -269,7 +269,7 @@ class _Mri(data.Dataset):
     #   Label map: 2D, flat int64, [0 ... sef.gt_k - 1]
     # label is passed in canonical [0 ... 181] indexing
 
-    assert (img.shape[:2] == label.shape)
+    print (img.shape[:2], label.shape)
     img = img.astype(np.float32)
     label = label.astype(np.int32)
 
@@ -303,6 +303,7 @@ class _Mri(data.Dataset):
     # dataloader must return tensors (conversion forced in their code anyway)
     return img, torch.from_numpy(label), mask
   def __getitem__(self, index):
+    print(index)
     subject_id = self.files[index]
     image, label = self._load_data(subject_id)
 
