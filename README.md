@@ -25,9 +25,6 @@ How to set up the segmentation datasets <a href="https://github.com/xu-ji/IIC/bl
         year={2019}
     }
 
-# Common questions
-Please have a look under the issues tab. For example, why the method doesn't actually assume independence between `z` and `z'` <a href="https://github.com/xu-ji/IIC/issues/31">here</a>. 
-
 # Package dependencies
 Listed <a href="https://github.com/xu-ji/IIC/blob/master/package_versions.txt">here</a>. You may want to use e.g. virtualenv to isolate the environment. It's an easy way to install package versions specific to the repository that won't affect the rest of the system.
 
