@@ -302,6 +302,7 @@ class _Mri(data.Dataset):
 
     # dataloader must return tensors (conversion forced in their code anyway)
     return img, torch.from_numpy(label), mask
+
   def __getitem__(self, index):
     print(index)
     subject_id = self.files[index]
@@ -386,8 +387,8 @@ class DiffSeg(_Mri):
     # each slice is 90 * 108
     # 90 slices per subject
     # 4 channels, each channel representing b=0, dwi, md and fa
-    image = image_mat["imgs"]
+    image = image_mat["imgs"][:,:,40,:]
     # using the aparc final FreeSurfer segmentation results
-    label = image_mat["segs"][:, :, :, 1]
+    label = image_mat["segs"][:, :, 40, 1]
 
     return image, label
