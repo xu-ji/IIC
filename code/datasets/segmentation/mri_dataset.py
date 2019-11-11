@@ -18,7 +18,7 @@ from code.utils.segmentation.transforms import \
 
 __all__ = ["DiffSeg"]
 RENDER_DATA = False
-
+NUM_SLICES = 90
 
 class _Mri(data.Dataset):
   """Base class
@@ -304,9 +304,11 @@ class _Mri(data.Dataset):
     return img, torch.from_numpy(label), mask
 
   def __getitem__(self, index):
-    print(index)
-    subject_id = self.files[index]
-    image, label = self._load_data(subject_id)
+    subject_idx = index // NUM_SLICES
+    slice_idx = index % NUM_SLICES
+    print(subject_idx, slice_idx, index)
+    subject_id = self.files[subject_idx]
+    image, label = self._load_data(subject_id, slice_idx)
 
     if self.purpose == "train":
       return self._prepare_train(index, image, label)
@@ -315,7 +317,7 @@ class _Mri(data.Dataset):
       return self._prepare_test(index, image, label)
 
   def __len__(self):
-    return len(self.files)
+    return len(self.files) * NUM_SLICES
 
   def _check_gt_k(self):
     raise NotImplementedError()
@@ -326,7 +328,7 @@ class _Mri(data.Dataset):
   def _set_files(self):
     raise NotImplementedError()
 
-  def _load_data(self, image_id):
+  def _load_data(self, image_id, slice_idx):
     raise NotImplementedError()
 
 
@@ -377,15 +379,21 @@ class DiffSeg(_Mri):
     else:
       raise ValueError("Invalid split name: {}".format(self.split))
 
-  def _load_data(self, subject_id):
+  def _load_data(self, subject_id, slice_idx):
     image_mat = sio.loadmat(osp.join(self.root, subject_id, "data.mat"))
     
     # shape (90, 108, 90, 4)
     # each slice is 90 * 108
     # 90 slices per subject
     # 4 channels, each channel representing b=0, dwi, md and fa
+<<<<<<< HEAD
     image = image_mat["imgs"][:,:,40,:]
     # using the aparc final FreeSurfer segmentation results
     label = image_mat["segs"][:, :, 40, 1]
+=======
+    image = image_mat["imgs"][:,:,slice_idx,:]
+    # using the aparc final FreeSurfer segmentation results
+    label = image_mat["segs"][:, :, slice_idx, 1]
+>>>>>>> a8d7f3ef3cebe222c71fa07f3718dfeb152b7708
 
     return image, label
