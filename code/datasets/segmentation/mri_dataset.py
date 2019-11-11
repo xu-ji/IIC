@@ -82,7 +82,7 @@ class _Mri(data.Dataset):
     # This returns gpu tensors.
     # label is passed in canonical [0 ... 181] indexing
 
-    assert (img.shape[:2] == label.shape)
+    print (img.shape[:2], label.shape)
     img = img.astype(np.float32)
     label = label.astype(np.int32)
 
