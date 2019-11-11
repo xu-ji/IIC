@@ -16,5 +16,8 @@ def set_segmentation_input_channels(config):
         config.in_channels += 2  # rgbir + sobel
 
     config.using_IR = True
+  elif config.dataset == "DiffSeg":
+    config.in_channels = 4
+    config.using_IR = False
   else:
     raise NotImplementedError
