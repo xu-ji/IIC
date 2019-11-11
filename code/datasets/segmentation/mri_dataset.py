@@ -375,7 +375,7 @@ class DiffSeg(_Mri):
   def _set_files(self):
     if self.split in ["all"]:
       subjects = sorted(glob(osp.join(self.root, 'mwu*')))
-      print(subjects)
+      print(len(subjects))
       self.files = subjects
     else:
       raise ValueError("Invalid split name: {}".format(self.split))
