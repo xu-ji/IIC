@@ -12,8 +12,8 @@ import torchvision.transforms as tvt
 from PIL import Image
 from torch.utils import data
 
-from code.utils.render import render
-from code.utils.transforms import \
+from code.utils.segmentation.render import render
+from code.utils.segmentation.transforms import \
   pad_and_or_crop, random_affine, custom_greyscale_numpy
 
 __all__ = ["DiffSeg"]
