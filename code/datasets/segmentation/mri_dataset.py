@@ -82,7 +82,7 @@ class _Mri(data.Dataset):
     # This returns gpu tensors.
     # label is passed in canonical [0 ... 181] indexing
 
-    assert (img.shape[:2] == label.shape)
+    print (img.shape[:2], label.shape)
     img = img.astype(np.float32)
     label = label.astype(np.int32)
 
@@ -197,7 +197,7 @@ class _Mri(data.Dataset):
     # This returns gpu tensors.
     # label is passed in canonical [0 ... 181] indexing
 
-    assert (img.shape[:2] == label.shape)
+    print (img.shape[:2], label.shape)
     img = img.astype(np.float32)
     label = label.astype(np.int32)
 
@@ -269,7 +269,7 @@ class _Mri(data.Dataset):
     #   Label map: 2D, flat int64, [0 ... sef.gt_k - 1]
     # label is passed in canonical [0 ... 181] indexing
 
-    assert (img.shape[:2] == label.shape)
+    print (img.shape[:2], label.shape)
     img = img.astype(np.float32)
     label = label.astype(np.int32)
 
@@ -302,15 +302,13 @@ class _Mri(data.Dataset):
 
     # dataloader must return tensors (conversion forced in their code anyway)
     return img, torch.from_numpy(label), mask
+
   def __getitem__(self, index):
     subject_id = self.files[index]
     image, label = self._load_data(subject_id)
 
     if self.purpose == "train":
-      if not self.single_mode:
-        return self._prepare_train(index, image, label)
-      else:
-        return self._prepare_train_single(index, image, label)
+      return self._prepare_train(index, image, label)
     else:
       assert (self.purpose == "test")
       return self._prepare_test(index, image, label)
@@ -373,7 +371,7 @@ class DiffSeg(_Mri):
   def _set_files(self):
     if self.split in ["all"]:
       subjects = sorted(glob(osp.join(self.root, 'mwu*')))
-      print(subjects)
+      print(len(subjects))
       self.files = subjects
     else:
       raise ValueError("Invalid split name: {}".format(self.split))
@@ -385,8 +383,8 @@ class DiffSeg(_Mri):
     # each slice is 90 * 108
     # 90 slices per subject
     # 4 channels, each channel representing b=0, dwi, md and fa
-    image = image_mat["imgs"]
+    image = image_mat["imgs"][:,:,40,:]
     # using the aparc final FreeSurfer segmentation results
-    label = image_mat["segs"][:, :, :, 1]
+    label = image_mat["segs"][:, :, 40, 1]
 
     return image, label
