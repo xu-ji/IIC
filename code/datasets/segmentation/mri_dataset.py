@@ -309,10 +309,7 @@ class _Mri(data.Dataset):
     image, label = self._load_data(subject_id)
 
     if self.purpose == "train":
-      if not self.single_mode:
-        return self._prepare_train(index, image, label)
-      else:
-        return self._prepare_train_single(index, image, label)
+      return self._prepare_train(index, image, label)
     else:
       assert (self.purpose == "test")
       return self._prepare_test(index, image, label)
