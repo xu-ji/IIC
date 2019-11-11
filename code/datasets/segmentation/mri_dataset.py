@@ -18,7 +18,7 @@ from code.utils.segmentation.transforms import \
 
 __all__ = ["DiffSeg"]
 RENDER_DATA = False
-
+NUM_SLICES = 90
 
 class _Mri(data.Dataset):
   """Base class
@@ -82,7 +82,7 @@ class _Mri(data.Dataset):
     # This returns gpu tensors.
     # label is passed in canonical [0 ... 181] indexing
 
-    assert (img.shape[:2] == label.shape)
+    print (img.shape[:2], label.shape)
     img = img.astype(np.float32)
     label = label.astype(np.int32)
 
@@ -197,7 +197,7 @@ class _Mri(data.Dataset):
     # This returns gpu tensors.
     # label is passed in canonical [0 ... 181] indexing
 
-    assert (img.shape[:2] == label.shape)
+    print (img.shape[:2], label.shape)
     img = img.astype(np.float32)
     label = label.astype(np.int32)
 
@@ -269,7 +269,7 @@ class _Mri(data.Dataset):
     #   Label map: 2D, flat int64, [0 ... sef.gt_k - 1]
     # label is passed in canonical [0 ... 181] indexing
 
-    assert (img.shape[:2] == label.shape)
+    print (img.shape[:2], label.shape)
     img = img.astype(np.float32)
     label = label.astype(np.int32)
 
@@ -302,21 +302,22 @@ class _Mri(data.Dataset):
 
     # dataloader must return tensors (conversion forced in their code anyway)
     return img, torch.from_numpy(label), mask
+
   def __getitem__(self, index):
-    subject_id = self.files[index]
-    image, label = self._load_data(subject_id)
+    subject_idx = index // NUM_SLICES
+    slice_idx = index % NUM_SLICES
+    print(subject_idx, slice_idx, index)
+    subject_id = self.files[subject_idx]
+    image, label = self._load_data(subject_id, slice_idx)
 
     if self.purpose == "train":
-      if not self.single_mode:
-        return self._prepare_train(index, image, label)
-      else:
-        return self._prepare_train_single(index, image, label)
+      return self._prepare_train(index, image, label)
     else:
       assert (self.purpose == "test")
       return self._prepare_test(index, image, label)
 
   def __len__(self):
-    return len(self.files)
+    return len(self.files) * NUM_SLICES
 
   def _check_gt_k(self):
     raise NotImplementedError()
@@ -327,7 +328,7 @@ class _Mri(data.Dataset):
   def _set_files(self):
     raise NotImplementedError()
 
-  def _load_data(self, image_id):
+  def _load_data(self, image_id, slice_idx):
     raise NotImplementedError()
 
 
@@ -373,20 +374,20 @@ class DiffSeg(_Mri):
   def _set_files(self):
     if self.split in ["all"]:
       subjects = sorted(glob(osp.join(self.root, 'mwu*')))
-      print(subjects)
+      print(len(subjects))
       self.files = subjects
     else:
       raise ValueError("Invalid split name: {}".format(self.split))
 
-  def _load_data(self, subject_id):
+  def _load_data(self, subject_id, slice_idx):
     image_mat = sio.loadmat(osp.join(self.root, subject_id, "data.mat"))
     
     # shape (90, 108, 90, 4)
     # each slice is 90 * 108
     # 90 slices per subject
     # 4 channels, each channel representing b=0, dwi, md and fa
-    image = image_mat["imgs"]
+    image = image_mat["imgs"][:,:,slice_idx,:]
     # using the aparc final FreeSurfer segmentation results
-    label = image_mat["segs"][:, :, :, 1]
+    label = image_mat["segs"][:, :, slice_idx, 1]
 
     return image, label
