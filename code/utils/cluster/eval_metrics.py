@@ -63,8 +63,8 @@ def _acc(preds, targets, num_k, verbose=0):
     print("calling acc...")
 
   assert (preds.shape == targets.shape)
-  print(preds.shape, preds.max(), targets.shape, targets.max(), num_k)
-  assert (preds.max() < num_k and targets.max() < num_k)
+  print(preds.shape, torch.max(preds), targets.shape, torch.max(targets), num_k)
+  assert (preds.max() <= num_k and targets.max() <= num_k)
 
   acc = int((preds == targets).sum()) / float(preds.shape[0])
 
