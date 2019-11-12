@@ -33,7 +33,6 @@ parser.add_argument("--get_match_only", default=False, action="store_true")
 
 args = parser.parse_args()
 model_inds = args.model_inds
-epochs = args.epochs
 net_name_prefix = args.net_name
 num = args.num
 reassess_acc = args.reassess_acc
