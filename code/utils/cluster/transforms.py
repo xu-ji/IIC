@@ -44,7 +44,7 @@ def custom_cutout(min_box=None, max_box=None):
   return _inner
 
 
-def sobel_process(imgs, include_rgb, using_IR=False):
+def sobel_process(imgs, include_rgb, using_IR=False, cpu=False):
   bn, c, h, w = imgs.size()
 
   if not using_IR:
@@ -68,14 +68,22 @@ def sobel_process(imgs, include_rgb, using_IR=False):
 
   sobel1 = np.array([[1, 0, -1], [2, 0, -2], [1, 0, -1]])
   conv1 = nn.Conv2d(1, 1, kernel_size=3, stride=1, padding=1, bias=False)
-  conv1.weight = nn.Parameter(
-    torch.Tensor(sobel1).cuda().float().unsqueeze(0).unsqueeze(0))
+  if cpu:
+    conv1.weight = nn.Parameter(
+      torch.Tensor(sobel1).float().unsqueeze(0).unsqueeze(0))
+  else:
+    conv1.weight = nn.Parameter(
+      torch.Tensor(sobel1).cuda().float().unsqueeze(0).unsqueeze(0))
   dx = conv1(Variable(grey_imgs)).data
 
   sobel2 = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]])
   conv2 = nn.Conv2d(1, 1, kernel_size=3, stride=1, padding=1, bias=False)
-  conv2.weight = nn.Parameter(
-    torch.from_numpy(sobel2).cuda().float().unsqueeze(0).unsqueeze(0))
+  if cpu:
+    conv2.weight = nn.Parameter(
+      torch.from_numpy(sobel2).float().unsqueeze(0).unsqueeze(0))
+  else:
+    conv2.weight = nn.Parameter(
+      torch.from_numpy(sobel2).cuda().float().unsqueeze(0).unsqueeze(0))
   dy = conv2(Variable(grey_imgs)).data
 
   sobel_imgs = torch.cat([dx, dy], dim=1)
