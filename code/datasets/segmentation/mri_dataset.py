@@ -390,4 +390,25 @@ class DiffSeg(_Mri):
     # using the aparc final FreeSurfer segmentation results
     label = image_mat["segs"][:, :, slice_idx, 1]
 
+    for i in len(label):
+      for j in len(label[0]):
+        if label[i, j] <= 10:
+          label[i, j] = 0
+        elif label[i, j] <= 20:
+          label[i, j] = 1
+        elif label[i, j] <= 30:
+          label[i, j] = 2
+        elif label[i, j] <= 40:
+          label[i, j] = 3
+        elif label[i, j] <= 50:
+          label[i, j] = 4
+        elif label[i, j] <= 100:
+          label[i, j] = 5
+        elif label[i, j] <= 500:
+          label[i, j] = 6  
+        elif label[i, j] <= 1000:
+          label[i, j] = 7       
+        else:
+          label[i, j] = 8
+
     return image, label

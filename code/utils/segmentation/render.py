@@ -131,6 +131,7 @@ def render(data, mode, name, colour_map=None, offset=0, out_dir=""):
     h, w = data.shape
     img = np.zeros((h, w, 3), dtype=np.uint8)
     # ignore <0 labels
+    print(data.max() + 1, len(colour_map))
     for c in xrange(0, data.max() + 1):
       img[data == c, :] = colour_map[c]
 
