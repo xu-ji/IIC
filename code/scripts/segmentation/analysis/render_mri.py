@@ -58,9 +58,9 @@ for model_ind in model_inds:
   if "DiffSeg" in config.dataset:
     dataloaders_train, mapping_assignment_dataloader, mapping_test_dataloader \
       = segmentation_create_dataloaders(config)
-    all_label_names = [str(x) + "L" for x in range(config.gt_k)]
+    all_label_names = [str(x) + "L" for x in range(2500)]
 
-  assert (len(all_label_names) == config.gt_k)
+  assert (len(all_label_names) == 2500)
 
   print("dataloader sizes: %d %d %d" % (len(dataloaders_train[0]),
                                         len(mapping_assignment_dataloader),
@@ -125,7 +125,7 @@ for model_ind in model_inds:
         exit(0)
 
       colour_map_raw = [(np.random.rand(3) * 255.).astype(np.uint8)
-                        for _ in xrange(max(config.output_k, config.gt_k))]
+                        for _ in xrange(max(2500, config.gt_k))]
                         
       colour_map_gt = colour_map_raw
 
