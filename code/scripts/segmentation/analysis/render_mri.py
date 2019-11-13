@@ -6,6 +6,8 @@ from datetime import datetime
 
 import numpy as np
 import torch
+import scipy.io
+
 
 import code.archs as archs
 from code.utils.cluster.cluster_eval import \
@@ -58,9 +60,9 @@ for model_ind in model_inds:
   if "DiffSeg" in config.dataset:
     dataloaders_train, mapping_assignment_dataloader, mapping_test_dataloader \
       = segmentation_create_dataloaders(config)
-    all_label_names = [str(x) + "L" for x in range(2500)]
+    # all_label_names = [str(x) + "L" for x in range(config.gt_k)]
 
-  assert (len(all_label_names) == 2500)
+  # assert (len(all_label_names) == config.gt_k)
 
   print("dataloader sizes: %d %d %d" % (len(dataloaders_train[0]),
                                         len(mapping_assignment_dataloader),
@@ -124,10 +126,7 @@ for model_ind in model_inds:
       if args.get_match_only:
         exit(0)
 
-      colour_map_raw = [(np.random.rand(3) * 255.).astype(np.uint8)
-                        for _ in xrange(max(2500, config.gt_k))]
-                        
-      colour_map_gt = colour_map_raw
+
 
       # render first batch
       predicted_all = [0 for _ in xrange(config.gt_k)]
@@ -181,18 +180,6 @@ for model_ind in model_inds:
         print(flat_targets.max(), config.gt_k)        
         #assert (flat_targets.max() <= config.gt_k)
 
-        # print iou per class
-        for c in xrange(config.gt_k):
-          preds = (reordered_preds == c)
-          targets = (flat_targets == c)
-
-          predicted = preds.sum()
-          correct = (preds * targets).sum()
-          all = ((preds + targets) >= 1).sum()
-
-          predicted_all[c] += predicted
-          correct_all[c] += correct
-          all_all[c] += all
 
         if next_img_ind >= num:
           print("not rendering batch")
@@ -208,46 +195,31 @@ for model_ind in model_inds:
         reordered_preds = reordered_preds[relevant_inds, :, :]
         flat_targets = flat_targets[relevant_inds, :, :]
 
-        if "Coco" in config.dataset:
-          # blue and red channels are swapped
-          orig_imgs_swapped = torch.zeros(orig_imgs.shape,
-                                          dtype=orig_imgs.dtype)
-          orig_imgs_swapped[:, 0, :, :] = orig_imgs[:, 2, :, :]
-          orig_imgs_swapped[:, 1, :, :] = orig_imgs[:, 1, :, :]
-          orig_imgs_swapped[:, 2, :, :] = orig_imgs[:, 0, :, :]  # ignore others
-          render(orig_imgs_swapped, mode="image", name=("%d_img" % model_ind),
-                 offset=next_img_ind,
-                 out_dir=net_name_outdir)
-          render(imgs, mode="image_as_feat", name=("%d_img_feat" % model_ind),
-                 offset=next_img_ind,
-                 out_dir=net_name_outdir)
+        scipy.io.savemat(net_name_outdir + "output.mat", \
+          mdict={'orig_imgs': orig_imgs, 'imgs':imgs, 'flat_preds': flat_preds, \
+            'reordered_preds': reordered_preds, 'flat_targets':flat_targets})
 
-        elif "Potsdam" in config.dataset:
-          render(orig_imgs, mode="image_ir", name=("%d_img" % model_ind),
-                 offset=next_img_ind,
-                 out_dir=net_name_outdir)
+      #   render(flat_preds, mode="preds", name=("%d_raw_preds" % model_ind),
+      #          offset=next_img_ind,
+      #          colour_map=colour_map_raw,
+      #          out_dir=net_name_outdir)
+      #   render(reordered_preds, mode="preds",
+      #          name=("%d_reordered_preds" % model_ind),
+      #          offset=next_img_ind,
+      #          colour_map=colour_map_gt,
+      #          out_dir=net_name_outdir)
+      #   render(flat_targets, mode="preds", name=("%d_targets" % model_ind),
+      #          offset=next_img_ind,
+      #          colour_map=colour_map_gt,
+      #          out_dir=net_name_outdir)
 
-        render(flat_preds, mode="preds", name=("%d_raw_preds" % model_ind),
-               offset=next_img_ind,
-               colour_map=colour_map_raw,
-               out_dir=net_name_outdir)
-        render(reordered_preds, mode="preds",
-               name=("%d_reordered_preds" % model_ind),
-               offset=next_img_ind,
-               colour_map=colour_map_gt,
-               out_dir=net_name_outdir)
-        render(flat_targets, mode="preds", name=("%d_targets" % model_ind),
-               offset=next_img_ind,
-               colour_map=colour_map_gt,
-               out_dir=net_name_outdir)
+      #   next_img_ind += num_imgs_curr
 
-        next_img_ind += num_imgs_curr
+      #   print("... rendered batch %d, next_img_ind %d " % (b_i, next_img_ind))
+      #   sys.stdout.flush()
 
-        print("... rendered batch %d, next_img_ind %d " % (b_i, next_img_ind))
-        sys.stdout.flush()
-
-      for c in xrange(config.gt_k):
-        iou = correct_all[c] / float(all_all[c])
-        print("class %d: name %s: pred %d correct %d all %d %f iou" %
-              (c, all_label_names[c], predicted_all[c], correct_all[c],
-               all_all[c], iou))
+      # for c in xrange(config.gt_k):
+      #   iou = correct_all[c] / float(all_all[c])
+      #   print("class %d: name %s: pred %d correct %d all %d %f iou" %
+      #         (c, all_label_names[c], predicted_all[c], correct_all[c],
+      #          all_all[c], iou))
