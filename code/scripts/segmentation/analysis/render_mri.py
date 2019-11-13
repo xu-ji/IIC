@@ -58,7 +58,7 @@ for model_ind in model_inds:
   if "DiffSeg" in config.dataset:
     dataloaders_train, mapping_assignment_dataloader, mapping_test_dataloader \
       = segmentation_create_dataloaders(config)
-    all_label_names = ["a"] * config.gt_k
+    all_label_names = [str(x) + "L" for x in range(config.gt_k)]
 
   assert (len(all_label_names) == config.gt_k)
 
@@ -126,17 +126,8 @@ for model_ind in model_inds:
 
       colour_map_raw = [(np.random.rand(3) * 255.).astype(np.uint8)
                         for _ in xrange(max(config.output_k, config.gt_k))]
-
-      # coco: green (veg) (7, 130, 42), blue (sky) (39, 159, 216),
-      # grey (road) (82, 91, 96), red (person - if used) (229, 57, 57)
-      if "Coco" in config.dataset:
-        colour_map_gt = [np.array([39, 159, 216], dtype=np.uint8),
-                         np.array([7, 130, 42], dtype=np.uint8),
-                         np.array([82, 91, 96], dtype=np.uint8),
-                         np.array([229, 57, 57], dtype=np.uint8)
-                         ]
-      else:
-        colour_map_gt = colour_map_raw
+                        
+      colour_map_gt = colour_map_raw
 
       # render first batch
       predicted_all = [0 for _ in xrange(config.gt_k)]
