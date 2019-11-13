@@ -34,7 +34,6 @@ parser.add_argument("--get_match_only", default=False, action="store_true")
 
 args = parser.parse_args()
 model_inds = args.model_inds
-epochs = args.epochs
 net_name_prefix = args.net_name
 num = args.num
 reassess_acc = args.reassess_acc
@@ -42,11 +41,11 @@ reassess_acc = args.reassess_acc
 print("imgs_dataloaders passed:")
 print(args.imgs_dataloaders)
 
-out_root = "/scratch/shared/slow/xuji/iid_private"
+out_root = "/bmrNAS/people/yuxinh/cocostuff/out"
 
 for model_ind in model_inds:
   out_dir = os.path.join(out_root, str(model_ind))
-  net_names = [net_name_prefix + "_net.pytorch"]
+  net_names = [net_name_prefix + ".pytorch"]
 
   reloaded_config_path = os.path.join(out_dir, "config.pickle")
   print("Loading restarting config from: %s" % reloaded_config_path)
@@ -112,7 +111,7 @@ for model_ind in model_inds:
       model_path = os.path.join(config.out_dir, net_name)
       print("getting model path %s " % model_path)
       net.load_state_dict(
-        torch.load(model_path, map_location=lambda storage, loc: storage))
+        torch.load(model_path, map_location=lambda storage, loc: storage)['net'])
       net.cuda()
       net = torch.nn.DataParallel(net)
       net.module.eval()

@@ -44,7 +44,7 @@ out_root = "/home/yuxinh/dl_seg/IIC/out"
 
 for model_ind in model_inds:
   out_dir = os.path.join(out_root, str(model_ind))
-  net_names = [net_name_prefix + "_net.pytorch"]
+  net_names = [net_name_prefix + ".pytorch"]
 
   reloaded_config_path = os.path.join(out_dir, "config.pickle")
   print("Loading restarting config from: %s" % reloaded_config_path)
@@ -87,7 +87,7 @@ for model_ind in model_inds:
       model_path = os.path.join(config.out_dir, net_name)
       print("getting model path %s " % model_path)
       net.load_state_dict(
-        torch.load(model_path, map_location=lambda storage, loc: storage))
+        torch.load(model_path, map_location=lambda storage, loc: storage)["net"])
       net.cuda()
       net = torch.nn.DataParallel(net)
       net.module.eval()
@@ -125,18 +125,11 @@ for model_ind in model_inds:
         exit(0)
 
       colour_map_raw = [(np.random.rand(3) * 255.).astype(np.uint8)
-                        for _ in xrange(max(config.output_k, config.gt_k))]
+                        for _ in xrange(max(2500, config.gt_k))]
 
       # coco: green (veg) (7, 130, 42), blue (sky) (39, 159, 216),
       # grey (road) (82, 91, 96), red (person - if used) (229, 57, 57)
-      if "Coco" in config.dataset:
-        colour_map_gt = [np.array([39, 159, 216], dtype=np.uint8),
-                         np.array([7, 130, 42], dtype=np.uint8),
-                         np.array([82, 91, 96], dtype=np.uint8),
-                         np.array([229, 57, 57], dtype=np.uint8)
-                         ]
-      else:
-        colour_map_gt = colour_map_raw
+      colour_map_gt = colour_map_raw
 
       # render first batch
       predicted_all = [0 for _ in xrange(config.gt_k)]
@@ -187,7 +180,8 @@ for model_ind in model_inds:
         flat_targets[masked] = -1  # not in colourmaps, hence will be black
 
         assert (reordered_preds.max() < config.gt_k)
-        assert (flat_targets.max() < config.gt_k)
+        print(flat_targets.max(), config.gt_k)        
+        #assert (flat_targets.max() <= config.gt_k)
 
         # print iou per class
         for c in xrange(config.gt_k):

@@ -8,4 +8,10 @@ python -m code.scripts.segmentation.segmentation_twohead --mode IID --dataset Di
 
 > gnoded1_gpu0123_m777_mri_r1.out &
 
+<<<<<<< HEAD
 export CUDA_VISIBLE_DEVICES=3 && nohup python -m code.scripts.segmentation.analysis.render_mri --model_ind 777 --net_name best.pytorch
+=======
+export CUDA_VISIBLE_DEVICES=3 && nohup 
+
+python -m code.scripts.segmentation.analysis.render_mri --model_ind 777 --net_name best
+>>>>>>> f0f70e235a23d1346345cfb3448055c971cd1376
