@@ -122,7 +122,9 @@ for model_ind in model_inds:
       match = all_matches[head_i]
       print("got best head %d %s" % (head_i, datetime.now()))
       print("best match %s" % str(match))
-
+        
+      scipy.io.savemat(net_name_outdir + "match.mat", \
+                       mdict={'match': match})
       if args.get_match_only:
         exit(0)
 
