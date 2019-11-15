@@ -241,31 +241,13 @@ class DiffSeg(_Mri):
   def __init__(self, **kwargs):
     super(DiffSeg, self).__init__(**kwargs)
 
-    # # work out name
-    # config = kwargs["config"]
-    # assert (config.use_coarse_labels)  # we only deal with coarse labels
-    # self.include_things_labels = config.include_things_labels  # people
-    # self.incl_animal_things = config.incl_animal_things  # animals
-
-    # version = config.coco_164k_curated_version
-
-    # name = "Coco164kFew_Stuff"
-    # if self.include_things_labels and self.incl_animal_things:
-    #   name += "_People_Animals"
-    # elif self.include_things_labels:
-    #   name += "_People"
-    # elif self.incl_animal_things:
-    #   name += "_Animals"
-
-    # self.name = (name + "_%d" % version)
-
-    # print("Specific type of _Coco164kCuratedFew dataset: %s" % self.name)
-
-    # # if coarse, index corresponds to order in cocostuff_fine_to_coarse.py
-    # self.use_coarse_labels = config.use_coarse_labels
-    # self.include_things_labels = config.include_things_labels
-
-    # self._check_gt_k()
+    self.label_idx = {}
+    with open("labelNameCount.csv") as label_counts:
+      reader = csv.reader(label_counts)
+      for rows in reader:
+          label = rows[0]
+          idx = rows[1]
+          self.label_idx[label] = idx
 
     self._set_files()
 
@@ -287,35 +269,9 @@ class DiffSeg(_Mri):
     image = image_mat["imgs"][:,:,slice_idx,:]
     # using the aparc final FreeSurfer segmentation results
     label = image_mat["segs"][:, :, slice_idx, 1]
+    
+    for i in range(len(label)):
+      for j in range(len(label[0])):
+          label[i, j] = self.label_idx[label[i, j]]
+
     return image, label
-  
-  def _filter_label(self, label):
-    # expects np array in fine labels ([0, 181]) and returns np arrays
-    # convert to coarse if required, and reindex to [0, gt_k -1], and get mask
-    # do we care about what is in masked portion of label map - no
-    # in eval, mask used to select, others ignored
-
-    # things: 91 classes (0-90), 12 superclasses (0-11)
-    # stuff: 91 classes (91-181), 15 superclasses (12-26)
-
-    if self.use_coarse_labels:
-      label = self._fine_to_coarse(label)
-
-    # always excludes unlabelled (<= -1)
-    mask = (label >= max_index)
-    assert (mask.dtype == np.bool)
-
-    return label, mask
-
-  def _fine_to_coarse(self, label_map):
-    # label_map is in fine indexing
-    # can't be in place!
-
-    new_label_map = np.zeros(label_map.shape, dtype=label_map.dtype)
-
-    # -1 stays -1
-    for c in xrange(182):
-      new_label_map[label_map == c] = self._fine_to_coarse_dict[c]
-
-    return new_label_map
-
