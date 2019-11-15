@@ -11,7 +11,7 @@ python -m code.scripts.segmentation.segmentation_twohead --mode IID --dataset Di
 export CUDA_VISIBLE_DEVICES=3 && nohup 
 
 python -m code.scripts.segmentation.analysis.render_mri --model_ind 777 --net_name best
-python -m code.scripts.segmentation.segmentation_twohead --mode IID --dataset DiffSeg --dataset_root /bmrNAS/people/yuxinh/DL_diffseg/DiffSeg-Data --out_root /home/yuxinh/dl_seg/IIC/out --model_ind 778 --arch SegmentationNet10aTwoHead --num_epochs 20 --lr 0.0001 --lamb_A 1.0 --lamb_B 1.5 --num_sub_heads 1 --batch_sz 15 --num_dataloaders 1 --use_coarse_labels --output_k_A 10 --output_k_B 10 --gt_k 10 --pre_scale_all --pre_scale_factor 1 --input_sz 128 --half_T_side_sparse_min 0 --half_T_side_sparse_max 0 --half_T_side_dense 10 --coco_164k_curated_version 6 --use_uncollapsed_loss --batchnorm_track
+python -m code.scripts.segmentation.segmentation_twohead --mode IID --dataset DiffSeg --dataset_root /bmrNAS/people/yuxinh/DL_diffseg/DiffSeg-Data --out_root /home/yuxinh/dl_seg/IIC/out --model_ind 778 --arch SegmentationNet10aTwoHead --num_epochs 20 --lr 0.0001 --lamb_A 1.0 --lamb_B 1.5 --num_sub_heads 1 --batch_sz 15 --num_dataloaders 1 --use_coarse_labels --output_k_A 10 --output_k_B 10 --gt_k 10 --input_sz 128 --half_T_side_sparse_min 0 --half_T_side_sparse_max 0 --half_T_side_dense 10 --coco_164k_curated_version 6 --use_uncollapsed_loss --batchnorm_track
 
 > gnoded1_gpu0123_m777_mri_r1.out &
 

@@ -6,7 +6,7 @@ from datetime import datetime
 
 import numpy as np
 import torch
-import scipy.io
+import scipy.io as sio
 
 
 import code.archs as archs
@@ -123,7 +123,7 @@ for model_ind in model_inds:
       print("got best head %d %s" % (head_i, datetime.now()))
       print("best match %s" % str(match))
         
-      scipy.io.savemat(net_name_outdir + "match.mat", \
+      sio.savemat(net_name_outdir + "match.mat", \
                        mdict={'match': match})
       if args.get_match_only:
         exit(0)
@@ -197,7 +197,7 @@ for model_ind in model_inds:
         reordered_preds = reordered_preds[relevant_inds, :, :]
         flat_targets = flat_targets[relevant_inds, :, :]
 
-        scipy.io.savemat(net_name_outdir + "output.mat", \
+        sio.savemat(net_name_outdir + "output.mat", \
           mdict={'orig_imgs': orig_imgs, 'imgs':imgs, 'flat_preds': flat_preds, \
             'reordered_preds': reordered_preds, 'flat_targets':flat_targets})
 

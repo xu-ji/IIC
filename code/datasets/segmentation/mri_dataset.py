@@ -17,7 +17,7 @@ from code.utils.segmentation.transforms import \
   pad_and_or_crop, random_affine, custom_greyscale_numpy
 
 __all__ = ["DiffSeg"]
-RENDER_DATA = False
+RENDER_DATA = True
 NUM_SLICES = 90
 
 class _Mri(data.Dataset):
@@ -36,37 +36,23 @@ class _Mri(data.Dataset):
 
     # always used (labels fields used to make relevancy mask for train)
     self.gt_k = config.gt_k
-    self.pre_scale_all = config.pre_scale_all
-    self.pre_scale_factor = config.pre_scale_factor
     self.input_sz = config.input_sz
-
-    # [TODO]: Do we need this two?
-    self.include_rgb = config.include_rgb
-    self.no_sobel = config.no_sobel
 
     # only used if purpose is train
     if purpose == "train":
+      self.out_dir = osp.join(osp.join(config.out_root, str(config.model_ind)), "train")
       self.use_random_scale = config.use_random_scale
       if self.use_random_scale:
         self.scale_max = config.scale_max
         self.scale_min = config.scale_min
-
       self.jitter_tf = tvt.ColorJitter(brightness=config.jitter_brightness,
                                        contrast=config.jitter_contrast,
                                        saturation=config.jitter_saturation,
                                        hue=config.jitter_hue)
 
       self.flip_p = config.flip_p  # 0.5
-
-      self.use_random_affine = config.use_random_affine
-      if self.use_random_affine:
-        self.aff_min_rot = config.aff_min_rot
-        self.aff_max_rot = config.aff_max_rot
-        self.aff_min_shear = config.aff_min_shear
-        self.aff_max_shear = config.aff_max_shear
-        self.aff_min_scale = config.aff_min_scale
-        self.aff_max_scale = config.aff_max_scale
-
+    elif purpose == "test":
+      self.out_dir = osp.join(osp.join(config.out_root, str(config.model_ind)), "test")
 
     self.files = []
     self.images = []
@@ -85,16 +71,6 @@ class _Mri(data.Dataset):
     # print (img.shape[:2], label.shape)
     img = img.astype(np.float32)
     label = label.astype(np.int32)
-
-    # shrink original images, for memory purposes, otherwise no point
-    if self.pre_scale_all:
-      assert (self.pre_scale_factor < 1.)
-      img = cv2.resize(img, dsize=None, fx=self.pre_scale_factor,
-                       fy=self.pre_scale_factor,
-                       interpolation=cv2.INTER_LINEAR)
-      label = cv2.resize(label, dsize=None, fx=self.pre_scale_factor,
-                         fy=self.pre_scale_factor,
-                         interpolation=cv2.INTER_NEAREST)
 
     # basic augmentation transforms for both img1 and img2
     if self.use_random_scale:
@@ -151,13 +127,8 @@ class _Mri(data.Dataset):
     img1 = np.array(img1)
     img2 = np.array(img2)
 
-    # channels still last
-    if not self.no_sobel:
-      img1 = custom_greyscale_numpy(img1, include_rgb=self.include_rgb)
-      img2 = custom_greyscale_numpy(img2, include_rgb=self.include_rgb)
-
-    img1 = img1.astype(np.float32) / 255.
-    img2 = img2.astype(np.float32) / 255.
+    img1 = img1.astype(np.float32) / 1.
+    img2 = img2.astype(np.float32) / 1.
 
     # convert both to channel-first tensor format
     # make them all cuda tensors now, except label, for optimality
@@ -165,19 +136,9 @@ class _Mri(data.Dataset):
     img2 = torch.from_numpy(img2).permute(2, 0, 1).cuda()
 
     # (img2) do affine if nec, tf_mat changes
-    if self.use_random_affine:
-      affine_kwargs = {"min_rot": self.aff_min_rot, "max_rot": self.aff_max_rot,
-                       "min_shear": self.aff_min_shear,
-                       "max_shear": self.aff_max_shear,
-                       "min_scale": self.aff_min_scale,
-                       "max_scale": self.aff_max_scale}
-      img2, affine1_to_2, affine2_to_1 = random_affine(img2,
-                                                       **affine_kwargs)  #
-      # tensors
-    else:
-      affine2_to_1 = torch.zeros([2, 3]).to(torch.float32).cuda()  # identity
-      affine2_to_1[0, 0] = 1
-      affine2_to_1[1, 1] = 1
+    affine2_to_1 = torch.zeros([2, 3]).to(torch.float32).cuda()  # identity
+    affine2_to_1[0, 0] = 1
+    affine2_to_1[1, 1] = 1
 
     # (img2) do random flip, tf_mat changes
     if np.random.rand() > self.flip_p:
@@ -189,78 +150,14 @@ class _Mri(data.Dataset):
       # hence top row is negated
       affine2_to_1[0, :] *= -1.
 
+    if RENDER_DATA:
+      sio.savemat(self.out_dir + ("_data_%d.mat" % index), \
+                       mdict={("train_data_img1_%d" % index): img1,
+                       ("train_data_img2_%d" % index): img2,
+                       ("train_data_affine2to1_%d" % index): affine2_to_1,
+                       ("train_data_mask_%d" % index)})
+
     return img1, img2, affine2_to_1, mask_img1
-
-  def _prepare_train_single(self, index, img, label):
-    # Returns one pair only, i.e. without transformed second image.
-    # Used for standard CNN training (baselines).
-    # This returns gpu tensors.
-    # label is passed in canonical [0 ... 181] indexing
-
-    # print (img.shape[:2], label.shape)
-    img = img.astype(np.float32)
-    label = label.astype(np.int32)
-
-    # shrink original images, for memory purposes, otherwise no point
-    if self.pre_scale_all:
-      assert (self.pre_scale_factor < 1.)
-      img = cv2.resize(img, dsize=None, fx=self.pre_scale_factor,
-                       fy=self.pre_scale_factor,
-                       interpolation=cv2.INTER_LINEAR)
-      label = cv2.resize(label, dsize=None, fx=self.pre_scale_factor,
-                         fy=self.pre_scale_factor,
-                         interpolation=cv2.INTER_NEAREST)
-
-    if self.use_random_scale:
-      # bilinear interp requires float img
-      scale_factor = (np.random.rand() * (self.scale_max - self.scale_min)) + \
-                     self.scale_min
-      img = cv2.resize(img, dsize=None, fx=scale_factor, fy=scale_factor,
-                       interpolation=cv2.INTER_LINEAR)
-      label = cv2.resize(label, dsize=None, fx=scale_factor, fy=scale_factor,
-                         interpolation=cv2.INTER_NEAREST)
-
-    # random crop to input sz
-    img, coords = pad_and_or_crop(img, self.input_sz, mode="random")
-    label, _ = pad_and_or_crop(label, self.input_sz, mode="fixed",
-                               coords=coords)
-
-    # _, mask_img1 = self._filter_label(label)
-    # uint8 tensor as masks should be binary, also for consistency with
-    # prepare_train, but converted to float32 in main loop because is used
-    # multiplicatively in loss
-    # mask_img1 = torch.from_numpy(mask_img1.astype(np.uint8)).cuda()
-    mask_img1 = torch.ones(self.input_sz, self.input_sz).to(torch.uint8).cuda()
-
-
-    # converting to PIL does not change underlying np datatype it seems
-    img1 = Image.fromarray(img.astype(np.uint8))
-
-    img1 = self.jitter_tf(img1)  # not in place, new memory
-    img1 = np.array(img1)
-
-    # channels still last
-    if not self.no_sobel:
-      img1 = custom_greyscale_numpy(img1, include_rgb=self.include_rgb)
-
-    img1 = img1.astype(np.float32) / 255.
-
-    # convert both to channel-first tensor format
-    # make them all cuda tensors now, except label, for optimality
-    img1 = torch.from_numpy(img1).permute(2, 0, 1).cuda()
-
-    if self.use_random_affine:
-      affine_kwargs = {"min_rot": self.aff_min_rot, "max_rot": self.aff_max_rot,
-                       "min_shear": self.aff_min_shear,
-                       "max_shear": self.aff_max_shear,
-                       "min_scale": self.aff_min_scale,
-                       "max_scale": self.aff_max_scale}
-      img1, _, _ = random_affine(img1, **affine_kwargs)  # tensors
-
-    if np.random.rand() > self.flip_p:
-      img1 = torch.flip(img1, dims=[2])  # horizontal, along width
-
-    return img1, mask_img1
 
   def _prepare_test(self, index, img, label):
     # This returns cpu tensors.
@@ -287,18 +184,19 @@ class _Mri(data.Dataset):
     img, _ = pad_and_or_crop(img, self.input_sz, mode="centre")
     label, _ = pad_and_or_crop(label, self.input_sz, mode="centre")
 
-    # finish
-    if not self.no_sobel:
-      img = custom_greyscale_numpy(img, include_rgb=self.include_rgb)
-
-    img = img.astype(np.float32) / 255.
+    img = img.astype(np.float32) / 1.
     img = torch.from_numpy(img).permute(2, 0, 1)
 
     # convert to coarse if required, reindex to [0, gt_k -1], and get mask
-    # label, mask = self._filter_label(label)
+    label, mask = self._filter_label(label)
 
     mask = torch.ones(self.input_sz, self.input_sz).to(torch.uint8)
 
+    if RENDER_DATA:
+      sio.savemat(self.out_dir + ("_data_%d.mat" % index), \
+                       mdict={("test_data_img_%d" % index): img,
+                       ("test_data_label_post_%d" % index): label,
+                       ("test_data_mask_%d" % index): mask})
 
     # dataloader must return tensors (conversion forced in their code anyway)
     return img, torch.from_numpy(label), mask
@@ -389,26 +287,35 @@ class DiffSeg(_Mri):
     image = image_mat["imgs"][:,:,slice_idx,:]
     # using the aparc final FreeSurfer segmentation results
     label = image_mat["segs"][:, :, slice_idx, 1]
-
-    for i in range(len(label)):
-      for j in range(len(label[0])):
-        if label[i, j] <= 10:
-          label[i, j] = 0
-        elif label[i, j] <= 20:
-          label[i, j] = 1
-        elif label[i, j] <= 30:
-          label[i, j] = 2
-        elif label[i, j] <= 40:
-          label[i, j] = 3
-        elif label[i, j] <= 50:
-          label[i, j] = 4
-        elif label[i, j] <= 100:
-          label[i, j] = 5
-        elif label[i, j] <= 500:
-          label[i, j] = 6  
-        elif label[i, j] <= 1000:
-          label[i, j] = 7       
-        else:
-          label[i, j] = 8
-
     return image, label
+  
+  def _filter_label(self, label):
+    # expects np array in fine labels ([0, 181]) and returns np arrays
+    # convert to coarse if required, and reindex to [0, gt_k -1], and get mask
+    # do we care about what is in masked portion of label map - no
+    # in eval, mask used to select, others ignored
+
+    # things: 91 classes (0-90), 12 superclasses (0-11)
+    # stuff: 91 classes (91-181), 15 superclasses (12-26)
+
+    if self.use_coarse_labels:
+      label = self._fine_to_coarse(label)
+
+    # always excludes unlabelled (<= -1)
+    mask = (label >= max_index)
+    assert (mask.dtype == np.bool)
+
+    return label, mask
+
+  def _fine_to_coarse(self, label_map):
+    # label_map is in fine indexing
+    # can't be in place!
+
+    new_label_map = np.zeros(label_map.shape, dtype=label_map.dtype)
+
+    # -1 stays -1
+    for c in xrange(182):
+      new_label_map[label_map == c] = self._fine_to_coarse_dict[c]
+
+    return new_label_map
+
