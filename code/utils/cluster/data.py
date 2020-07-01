@@ -1,3 +1,4 @@
+import os
 import sys
 from datetime import datetime
 
@@ -494,3 +495,79 @@ def _cifar100_to_cifar20(target):
      99: 13}
 
   return _dict[target]
+
+
+# Basic dataloaders --------------------------------------------------------
+
+def create_basic_clustering_dataloaders(config):
+  """
+  My original data loading code is complex to cover all my experiments. Here is a simple version.
+  Use it to replace cluster_twohead_create_dataloaders() in the scripts.
+  
+  This uses ImageFolder but you could use your own subclass of torch.utils.data.Dataset.
+  
+  :param config: Requires num_dataloaders and values used by *make_transforms(), e.g. crop size, 
+  input size etc.
+  :return: Training and testing dataloaders
+  """
+
+  # Change these according to your data:
+  greyscale = False
+  train_data_path = os.path.join(config.dataset_root, "train")
+  test_val_data_path = os.path.join(config.dataset_root, "none")
+  test_data_path = os.path.join(config.dataset_root, "none")
+  assert (config.batchnorm_track)  # recommended (for test time invariance to batch size)
+
+  # Transforms:
+  if greyscale:
+    tf1, tf2, tf3 = greyscale_make_transforms(config)
+  else:
+    tf1, tf2, tf3 = sobel_make_transforms(config)
+
+  # Training data:
+  # main output head (B), auxiliary overclustering head (A), same data for both
+  dataloaders_head_B = [torch.utils.data.DataLoader(
+    torchvision.datasets.ImageFolder(root=train_data_path, transform=tf1),
+    batch_size=config.dataloader_batch_sz,
+    shuffle=False,
+    num_workers=0,
+    drop_last=False)] + \
+                       [torch.utils.data.DataLoader(
+                         torchvision.datasets.ImageFolder(root=train_data_path, transform=tf2),
+                         batch_size=config.dataloader_batch_sz,
+                         shuffle=False,
+                         num_workers=0,
+                         drop_last=False) for _ in range(config.num_dataloaders)]
+
+  dataloaders_head_A = [torch.utils.data.DataLoader(
+    torchvision.datasets.ImageFolder(root=train_data_path, transform=tf1),
+    batch_size=config.dataloader_batch_sz,
+    shuffle=False,
+    num_workers=0,
+    drop_last=False)] + \
+                       [torch.utils.data.DataLoader(
+                         torchvision.datasets.ImageFolder(root=train_data_path, transform=tf2),
+                         batch_size=config.dataloader_batch_sz,
+                         shuffle=False,
+                         num_workers=0,
+                         drop_last=False) for _ in range(config.num_dataloaders)]
+
+  # Testing data (labelled):
+  mapping_assignment_dataloader, mapping_test_dataloader = None, None
+  if os.path.exists(test_data_path):
+    mapping_assignment_dataloader = torch.utils.data.DataLoader(
+      torchvision.datasets.ImageFolder(test_val_data_path, transform=tf3),
+      batch_size=config.batch_sz,
+      shuffle=False,
+      num_workers=0,
+      drop_last=False)
+
+    mapping_test_dataloader = torch.utils.data.DataLoader(
+      torchvision.datasets.ImageFolder(test_data_path, transform=tf3),
+      batch_size=config.batch_sz,
+      shuffle=False,
+      num_workers=0,
+      drop_last=False)
+
+  return dataloaders_head_A, dataloaders_head_B, \
+         mapping_assignment_dataloader, mapping_test_dataloader
