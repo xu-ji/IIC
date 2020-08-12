@@ -4,7 +4,7 @@ from datetime import datetime
 
 import torch
 import torchvision
-from torch.utils.data import ConcatDataset
+from torch.utils.data import ConcatDataset, Sampler
 
 from code.datasets.clustering.truncated_dataset import TruncatedDataset
 from code.utils.cluster.transforms import sobel_make_transforms, \
@@ -505,6 +505,7 @@ def create_basic_clustering_dataloaders(config):
   Use it to replace cluster_twohead_create_dataloaders() in the scripts.
   
   This uses ImageFolder but you could use your own subclass of torch.utils.data.Dataset.
+  (ImageFolder data is not shuffled so an ideally deterministic random sampler is needed.)
   
   :param config: Requires num_dataloaders and values used by *make_transforms(), e.g. crop size, 
   input size etc.
@@ -530,12 +531,14 @@ def create_basic_clustering_dataloaders(config):
     torchvision.datasets.ImageFolder(root=train_data_path, transform=tf1),
     batch_size=config.dataloader_batch_sz,
     shuffle=False,
+    sampler=DeterministicRandomSampler(),
     num_workers=0,
     drop_last=False)] + \
                        [torch.utils.data.DataLoader(
                          torchvision.datasets.ImageFolder(root=train_data_path, transform=tf2),
                          batch_size=config.dataloader_batch_sz,
                          shuffle=False,
+                         sampler=DeterministicRandomSampler(),
                          num_workers=0,
                          drop_last=False) for _ in range(config.num_dataloaders)]
 
@@ -543,12 +546,14 @@ def create_basic_clustering_dataloaders(config):
     torchvision.datasets.ImageFolder(root=train_data_path, transform=tf1),
     batch_size=config.dataloader_batch_sz,
     shuffle=False,
+    sampler=DeterministicRandomSampler(),
     num_workers=0,
     drop_last=False)] + \
                        [torch.utils.data.DataLoader(
                          torchvision.datasets.ImageFolder(root=train_data_path, transform=tf2),
                          batch_size=config.dataloader_batch_sz,
                          shuffle=False,
+                         sampler=DeterministicRandomSampler(),
                          num_workers=0,
                          drop_last=False) for _ in range(config.num_dataloaders)]
 
@@ -559,6 +564,7 @@ def create_basic_clustering_dataloaders(config):
       torchvision.datasets.ImageFolder(test_val_data_path, transform=tf3),
       batch_size=config.batch_sz,
       shuffle=False,
+      sampler=DeterministicRandomSampler(),
       num_workers=0,
       drop_last=False)
 
@@ -566,8 +572,22 @@ def create_basic_clustering_dataloaders(config):
       torchvision.datasets.ImageFolder(test_data_path, transform=tf3),
       batch_size=config.batch_sz,
       shuffle=False,
+      sampler=DeterministicRandomSampler(),
       num_workers=0,
       drop_last=False)
 
   return dataloaders_head_A, dataloaders_head_B, \
          mapping_assignment_dataloader, mapping_test_dataloader
+
+class DeterministicRandomSampler(Sampler):
+  # Samples elements randomly, without replacement - same order every time.
+
+  def __init__(self, data_source):
+    self.data_source = data_source
+    self.gen = torch.Generator().manual_seed(0)
+
+  def __iter__(self):
+    return iter(torch.randperm(len(self.data_source), generator=self.gen).tolist())
+
+  def __len__(self):
+    return len(self.data_source)
