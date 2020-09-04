@@ -527,52 +527,60 @@ def create_basic_clustering_dataloaders(config):
 
   # Training data:
   # main output head (B), auxiliary overclustering head (A), same data for both
+  dataset_head_B = torchvision.datasets.ImageFolder(root=train_data_path, transform=tf1),
+  datasets_tf_head_B = [torchvision.datasets.ImageFolder(root=train_data_path, transform=tf2)
+                        for _ in range(config.num_dataloaders)]
   dataloaders_head_B = [torch.utils.data.DataLoader(
-    torchvision.datasets.ImageFolder(root=train_data_path, transform=tf1),
+    dataset_head_B,
     batch_size=config.dataloader_batch_sz,
     shuffle=False,
-    sampler=DeterministicRandomSampler(),
+    sampler=DeterministicRandomSampler(dataset_head_B),
     num_workers=0,
     drop_last=False)] + \
                        [torch.utils.data.DataLoader(
-                         torchvision.datasets.ImageFolder(root=train_data_path, transform=tf2),
+                         datasets_tf_head_B[i],
                          batch_size=config.dataloader_batch_sz,
                          shuffle=False,
-                         sampler=DeterministicRandomSampler(),
+                         sampler=DeterministicRandomSampler(datasets_tf_head_B[i]),
                          num_workers=0,
-                         drop_last=False) for _ in range(config.num_dataloaders)]
+                         drop_last=False) for i in range(config.num_dataloaders)]
 
+  dataset_head_A = torchvision.datasets.ImageFolder(root=train_data_path, transform=tf1)
+  datasets_tf_head_A = [torchvision.datasets.ImageFolder(root=train_data_path, transform=tf2)
+                        for _ in range(config.num_dataloaders)]
   dataloaders_head_A = [torch.utils.data.DataLoader(
-    torchvision.datasets.ImageFolder(root=train_data_path, transform=tf1),
+    dataset_head_A,
     batch_size=config.dataloader_batch_sz,
     shuffle=False,
-    sampler=DeterministicRandomSampler(),
+    sampler=DeterministicRandomSampler(dataset_head_A),
     num_workers=0,
     drop_last=False)] + \
                        [torch.utils.data.DataLoader(
-                         torchvision.datasets.ImageFolder(root=train_data_path, transform=tf2),
+                         datasets_tf_head_A[i],
                          batch_size=config.dataloader_batch_sz,
                          shuffle=False,
-                         sampler=DeterministicRandomSampler(),
+                         sampler=DeterministicRandomSampler(datasets_tf_head_A[i]),
                          num_workers=0,
-                         drop_last=False) for _ in range(config.num_dataloaders)]
+                         drop_last=False) for i in range(config.num_dataloaders)]
 
   # Testing data (labelled):
   mapping_assignment_dataloader, mapping_test_dataloader = None, None
   if os.path.exists(test_data_path):
+    mapping_assignment_dataset = torchvision.datasets.ImageFolder(test_val_data_path, transform=tf3)
     mapping_assignment_dataloader = torch.utils.data.DataLoader(
-      torchvision.datasets.ImageFolder(test_val_data_path, transform=tf3),
+      mapping_assignment_dataset,
       batch_size=config.batch_sz,
       shuffle=False,
-      sampler=DeterministicRandomSampler(),
+      sampler=DeterministicRandomSampler(mapping_assignment_dataset),
       num_workers=0,
       drop_last=False)
 
+    mapping_test_dataset = torchvision.datasets.ImageFolder(test_data_path, transform=tf3)
     mapping_test_dataloader = torch.utils.data.DataLoader(
-      torchvision.datasets.ImageFolder(test_data_path, transform=tf3),
+      mapping_test_dataset,
       batch_size=config.batch_sz,
       shuffle=False,
-      sampler=DeterministicRandomSampler(),
+      sampler=DeterministicRandomSampler(mapping_test_dataset),
       num_workers=0,
       drop_last=False)
 
