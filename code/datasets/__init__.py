@@ -1,2 +1,2 @@
-from clustering import *
-from segmentation import *
+from .clustering import *
+from .segmentation import *

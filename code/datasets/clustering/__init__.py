@@ -1,1 +1,1 @@
-from truncated_dataset import *
+from .truncated_dataset import *

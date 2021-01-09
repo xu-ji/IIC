@@ -1,1 +1,1 @@
-from doersch import *
+from .doersch import *

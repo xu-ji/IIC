@@ -15,8 +15,8 @@ def _original_match(flat_preds, flat_targets, preds_k, targets_k):
 
   out_to_gts = {}
   out_to_gts_scores = {}
-  for out_c in xrange(preds_k):
-    for gt_c in xrange(targets_k):
+  for out_c in range(preds_k):
+    for gt_c in range(targets_k):
       # the amount of out_c at all the gt_c samples
       tp_score = int(((flat_preds == out_c) * (flat_targets == gt_c)).sum())
       if (out_c not in out_to_gts) or (tp_score > out_to_gts_scores[out_c]):
@@ -37,8 +37,8 @@ def _hungarian_match(flat_preds, flat_targets, preds_k, targets_k):
   num_k = preds_k
   num_correct = np.zeros((num_k, num_k))
 
-  for c1 in xrange(num_k):
-    for c2 in xrange(num_k):
+  for c1 in range(num_k):
+    for c2 in range(num_k):
       # elementwise, so each sample contributes once
       votes = int(((flat_preds == c1) * (flat_targets == c2)).sum())
       num_correct[c1, c2] = votes
